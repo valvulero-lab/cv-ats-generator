@@ -427,6 +427,7 @@ INSTRUCCIONES IMPORTANTES:
 - Si la experiencia dice "Actualidad" o "Presente" o "Current", el campo hasta="Actualidad"
 - Si no hay perfil explícito, construí uno breve con el cargo principal y años de experiencia
 - Extraé TODAS las experiencias laborales que encuentres
+- Ordená las experiencias de MÁS ANTIGUA a MÁS RECIENTE (la más antigua primero, la más reciente al final)
 
 TEXTO DEL CV:
 ${pdfText.substring(0,8000)}`;
@@ -460,7 +461,12 @@ function populateForm(data){
   if(data.certificaciones) document.getElementById('certs').value=data.certificaciones;
   document.getElementById('exp-container').innerHTML='';
   expCount=0;
-  ([...(data.experiencias||[])].reverse()).forEach(e=>{
+  // Sort by start date descending (most recent first)
+  const expsSorted=[...(data.experiencias||[])].sort((a,b)=>{
+    const parseYear=s=>{const m=String(s||'').match(/\d{4}/);return m?parseInt(m[0]):0;};
+    return parseYear(b.desde)-parseYear(a.desde);
+  });
+  expsSorted.forEach(e=>{
     addExp();
     const id=expCount;
     if(e.empresa) document.getElementById('exp-emp-'+id).value=e.empresa;
