@@ -404,7 +404,7 @@ async function importPDF(file){
     }
     const prompt=`Analizá el siguiente texto extraído de un CV y extraé toda la información estructurada con precisión.
 Respondé ÚNICAMENTE con JSON válido sin backticks con esta estructura exacta:
-{"nombre":"","email":"","telefono":"","ubicacion":"","linkedin":"","perfil":"Si hay resumen o perfil profesional explícito usalo. Si no, construí uno breve en primera persona basado en el cargo principal y experiencia del candidato. NO empieces con la palabra Soy.","experiencias":[{"empresa":"","cargo":"","desde":"Mes AAAA — extraé solo la fecha de inicio del rango","hasta":"Mes AAAA o Actualidad — extraé solo la fecha de fin del rango. Si dice un rango como ENE 2020 - MAR 2023 el hasta es MAR 2023","desc":"descripción de tareas"}],"educacion":[{"titulo":"","inst":"","anio":""}],"habilidades":["habilidad1"],"idiomas":[{"nombre":"","nivel":""}],"certificaciones":""}
+{"nombre":"","email":"","telefono":"","ubicacion":"","linkedin":"URL completa de LinkedIn, ej: linkedin.com/in/nombre-apellido. Si encontrás solo el handle o nombre, construí la URL completa como linkedin.com/in/handle","perfil":"Si hay resumen o perfil profesional explícito usalo. Si no, construí uno breve en primera persona basado en el cargo principal y experiencia del candidato. NO empieces con la palabra Soy.","experiencias":[{"empresa":"","cargo":"","desde":"Mes AAAA — extraé solo la fecha de inicio del rango","hasta":"Mes AAAA o Actualidad — extraé solo la fecha de fin del rango. Si dice un rango como ENE 2020 - MAR 2023 el hasta es MAR 2023","desc":"descripción de tareas"}],"educacion":[{"titulo":"","inst":"","anio":""}],"habilidades":["habilidad1"],"idiomas":[{"nombre":"","nivel":""}],"certificaciones":""}
 
 INSTRUCCIONES IMPORTANTES:
 - Para las fechas de experiencia: si ves un rango como "ENERO 2020 - MARZO 2023", el campo desde="Enero 2020" y hasta="Marzo 2023"
@@ -433,7 +433,13 @@ function populateForm(data){
   if(data.email) document.getElementById('email').value=data.email;
   if(data.telefono) document.getElementById('telefono').value=data.telefono;
   if(data.ubicacion) document.getElementById('ubicacion').value=data.ubicacion;
-  if(data.linkedin) document.getElementById('linkedin').value=data.linkedin;
+  if(data.linkedin){
+    let li=data.linkedin.trim();
+    // Normalize to linkedin.com/in/handle format
+    li=li.replace(/^https?:\/\//i,'').replace(/^www\./i,'');
+    if(li&&!li.startsWith('linkedin.com')) li='linkedin.com/in/'+li.replace(/^linkedin[:\s]+/i,'').trim();
+    document.getElementById('linkedin').value=li;
+  }
   if(data.perfil) document.getElementById('perfil').value=data.perfil;
   if(data.certificaciones) document.getElementById('certs').value=data.certificaciones;
   document.getElementById('exp-container').innerHTML='';
