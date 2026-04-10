@@ -447,6 +447,11 @@ function populateForm(data){
     if(e.hasta&&e.hasta.toLowerCase().includes('actual')){
       document.getElementById('exp-actual-'+id).checked=true;
       toggleHasta(id);
+      // Remove red border from hasta dropdowns since they're disabled
+      const hm=document.getElementById('exp-hasta-mes-'+id);
+      const hy=document.getElementById('exp-hasta-anio-'+id);
+      if(hm) hm.classList.remove('needs-attention');
+      if(hy) hy.classList.remove('needs-attention');
     }
     const desdeParts=(e.desde||'').split(' ');
     if(desdeParts.length>=2){
