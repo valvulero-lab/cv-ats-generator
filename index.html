@@ -375,7 +375,8 @@ function renderPreview(cv){
       <div class="cv-edu-top"><span class="cv-edu-title">${e.titulo||''}</span><span class="cv-edu-year">${e.anio||''}</span></div>
       <div class="cv-edu-inst">${e.inst||''}</div>
     </div>`).join('');
-  const allSkills=[...(cv.habilidades||[]),...(cv.habilidades_sugeridas||[])];
+  const allSkillsRaw=[...(cv.habilidades||[]),...(cv.habilidades_sugeridas||[])];
+  const allSkills=[...new Set(allSkillsRaw.map(s=>s.trim()).filter(Boolean))];
   const skillsHtml=allSkills.map(s=>`<span class="cv-tag">${s}</span>`).join('');
   const langHtml=(cv.idiomas||[]).map(l=>`<span class="cv-tag">${l.nombre} — ${l.nivel}</span>`).join('');
   const contacts=[cv.email,cv.telefono,cv.ubicacion,cv.linkedin].filter(Boolean);
@@ -426,7 +427,8 @@ function downloadPDF(){
     });
   }
   if(cvData.educacion?.length){sec('Educación');cvData.educacion.forEach(e=>{line(`${e.titulo||''} — ${e.inst||''} (${e.anio||''})`,10,'normal');y+=2;});y+=2;}
-  const sk=[...(cvData.habilidades||[]),...(cvData.habilidades_sugeridas||[])];
+  const skRaw=[...(cvData.habilidades||[]),...(cvData.habilidades_sugeridas||[])];
+  const sk=[...new Set(skRaw.map(s=>s.trim()).filter(Boolean))];
   if(sk.length){sec('Habilidades');line(sk.join(' • '),10,'normal');y+=4;}
   if(cvData.idiomas?.length){sec('Idiomas');cvData.idiomas.forEach(l=>{line(`${l.nombre} — ${l.nivel}`,10,'normal');y+=2;});y+=2;}
   if(cvData.certificaciones){sec('Certificaciones');line(cvData.certificaciones,10,'normal');}
