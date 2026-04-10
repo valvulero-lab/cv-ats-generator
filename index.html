@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Generador de CV ATS | Profesional y Optimizado</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
@@ -379,57 +380,47 @@ function renderSkills(){
 }
 
 // Feature 3: Import PDF
-function handleDrop(e){
-  e.preventDefault();
-  document.getElementById('import-drop').classList.remove('dragover');
-  const file=e.dataTransfer.files[0];
-  if(file&&file.type==='application/pdf') importPDF(file);
-  else alert('Por favor seleccioná un archivo PDF.');
+async function extractTextFromPDF(file){
+  const arrayBuffer=await file.arrayBuffer();
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+  let text='';
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const content=await page.getTextContent();
+    text+=content.items.map(item=>item.str).join(' ')+'
+';
+  }
+  return text.trim();
 }
 async function importPDF(file){
   if(!file)return;
-  document.getElementById('import-loading').style.display='block';
-  document.getElementById('import-drop').style.display='none';
+  const loadingEl=document.getElementById('import-loading');
+  loadingEl.style.display='flex';
   try{
-    const base64=await fileToBase64(file);
-    const prompt=`Analizá el siguiente CV en PDF (codificado en base64) y extraé toda la información estructurada.
+    const pdfText=await extractTextFromPDF(file);
+    if(!pdfText||pdfText.length<50){
+      throw new Error('No se pudo extraer texto del PDF. Asegurate de que el PDF tenga texto seleccionable (no sea una imagen escaneada).');
+    }
+    const prompt=`Analizá el siguiente texto extraído de un CV y extraé toda la información estructurada.
 Respondé ÚNICAMENTE con JSON válido sin backticks con esta estructura exacta:
-{
-  "nombre":"",
-  "email":"",
-  "telefono":"",
-  "ubicacion":"",
-  "linkedin":"",
-  "perfil":"resumen profesional en primera persona si existe, sino vacío",
-  "experiencias":[{"empresa":"","cargo":"","desde":"","hasta":"","desc":"descripción de tareas"}],
-  "educacion":[{"titulo":"","inst":"","anio":""}],
-  "habilidades":["habilidad1","habilidad2"],
-  "idiomas":[{"nombre":"","nivel":""}],
-  "certificaciones":""
-}
-El PDF en base64: ${base64.substring(0,50000)}`;
+{"nombre":"","email":"","telefono":"","ubicacion":"","linkedin":"","perfil":"resumen profesional en primera persona si existe, sino vacío","experiencias":[{"empresa":"","cargo":"","desde":"mes año o vacío","hasta":"mes año o Actualidad","desc":"descripción de tareas"}],"educacion":[{"titulo":"","inst":"","anio":""}],"habilidades":["habilidad1"],"idiomas":[{"nombre":"","nivel":""}],"certificaciones":""}
+
+TEXTO DEL CV:
+${pdfText.substring(0,8000)}`;
     const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     const result=await resp.json();
     if(result.error)throw new Error(result.error);
     const text=result.result.replace(/```json|```/g,'').trim();
     const data=JSON.parse(text);
     populateForm(data);
-    document.getElementById('import-loading').style.display='none';
-    document.getElementById('import-drop').style.display='block';
-    alert('CV importado correctamente. Revisá y editá los campos antes de generar.');
+    loadingEl.style.display='none';
+    alert('CV importado. Revisá y editá los campos antes de generar.');
   }catch(e){
-    document.getElementById('import-loading').style.display='none';
-    document.getElementById('import-drop').style.display='block';
-    alert('Error al importar el PDF: '+e.message);
+    loadingEl.style.display='none';
+    alert('Error al importar: '+e.message);
   }
-}
-function fileToBase64(file){
-  return new Promise((res,rej)=>{
-    const r=new FileReader();
-    r.onload=()=>res(r.result.split(',')[1]);
-    r.onerror=()=>rej(new Error('Error al leer el archivo'));
-    r.readAsDataURL(file);
-  });
+  document.getElementById('pdf-input').value='';
 }
 function populateForm(data){
   if(data.nombre) document.getElementById('nombre').value=data.nombre;
