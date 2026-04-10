@@ -34,6 +34,7 @@ label{font-size:12px;color:#666;font-weight:500}
 input,textarea,select{width:100%;font-size:14px;font-family:inherit;color:#1a1a1a;background:#fafafa;border:0.5px solid #e0e0e0;border-radius:8px;padding:9px 12px;outline:none;transition:border-color 0.15s,background 0.15s}
 input:focus,textarea:focus,select:focus{border-color:#1a1a1a;background:#fff}
 select:disabled{opacity:0.4;cursor:not-allowed}
+select.needs-attention{border-color:#e53935;background:#fff8f8}
 textarea{resize:vertical;line-height:1.6}
 .exp-item{background:#fafafa;border:0.5px solid #e8e8e8;border-radius:8px;padding:1rem;margin-bottom:10px}
 .exp-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -403,7 +404,7 @@ async function importPDF(file){
     }
     const prompt=`Analizá el siguiente texto extraído de un CV y extraé toda la información estructurada con precisión.
 Respondé ÚNICAMENTE con JSON válido sin backticks con esta estructura exacta:
-{"nombre":"","email":"","telefono":"","ubicacion":"","linkedin":"","perfil":"Si hay resumen o perfil profesional explícito usalo. Si no, construí uno breve en primera persona basado en el cargo principal y experiencia del candidato.","experiencias":[{"empresa":"","cargo":"","desde":"Mes AAAA — extraé solo la fecha de inicio del rango","hasta":"Mes AAAA o Actualidad — extraé solo la fecha de fin del rango. Si dice un rango como ENE 2020 - MAR 2023 el hasta es MAR 2023","desc":"descripción de tareas"}],"educacion":[{"titulo":"","inst":"","anio":""}],"habilidades":["habilidad1"],"idiomas":[{"nombre":"","nivel":""}],"certificaciones":""}
+{"nombre":"","email":"","telefono":"","ubicacion":"","linkedin":"","perfil":"Si hay resumen o perfil profesional explícito usalo. Si no, construí uno breve en primera persona basado en el cargo principal y experiencia del candidato. NO empieces con la palabra Soy.","experiencias":[{"empresa":"","cargo":"","desde":"Mes AAAA — extraé solo la fecha de inicio del rango","hasta":"Mes AAAA o Actualidad — extraé solo la fecha de fin del rango. Si dice un rango como ENE 2020 - MAR 2023 el hasta es MAR 2023","desc":"descripción de tareas"}],"educacion":[{"titulo":"","inst":"","anio":""}],"habilidades":["habilidad1"],"idiomas":[{"nombre":"","nivel":""}],"certificaciones":""}
 
 INSTRUCCIONES IMPORTANTES:
 - Para las fechas de experiencia: si ves un rango como "ENERO 2020 - MARZO 2023", el campo desde="Enero 2020" y hasta="Marzo 2023"
@@ -437,7 +438,7 @@ function populateForm(data){
   if(data.certificaciones) document.getElementById('certs').value=data.certificaciones;
   document.getElementById('exp-container').innerHTML='';
   expCount=0;
-  (data.experiencias||[]).forEach(e=>{
+  ([...(data.experiencias||[])].reverse()).forEach(e=>{
     addExp();
     const id=expCount;
     if(e.empresa) document.getElementById('exp-emp-'+id).value=e.empresa;
@@ -477,6 +478,13 @@ function populateForm(data){
   skills=[];
   (data.habilidades||[]).forEach(h=>{if(h&&!skills.includes(h))skills.push(h);});
   renderSkills();
+  // Highlight empty date dropdowns
+  setTimeout(()=>{
+    document.querySelectorAll('[id^="exp-desde-mes-"],[id^="exp-desde-anio-"],[id^="exp-hasta-mes-"],[id^="exp-hasta-anio-"]').forEach(el=>{
+      if(!el.value) el.classList.add('needs-attention');
+      el.addEventListener('change',()=>el.classList.remove('needs-attention'),{once:true});
+    });
+  },100);
 }
 
 function collect(){
