@@ -69,28 +69,47 @@ textarea{resize:vertical;line-height:1.6}
 .btn-dl:hover{background:#333}
 .btn-back{background:none;border:0.5px solid #e0e0e0;border-radius:8px;padding:9px 20px;font-size:13px;cursor:pointer;color:#555}
 .btn-back:hover{background:#f5f5f5}
-.ats-note{background:#e8f5e9;border:0.5px solid #c8e6c9;border-radius:8px;padding:10px 14px;font-size:12px;color:#2e7d32;margin-bottom:1rem;line-height:1.5}
+/* ATS Feedback Panel */
+.ats-panel{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.ats-panel-title{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.ats-score{display:flex;align-items:center;gap:16px;margin-bottom:1rem}
+.ats-score-num{font-size:36px;font-weight:700;color:#2e7d32}
+.ats-score-label{font-size:12px;color:#666;line-height:1.5}
+.ats-score-bar{flex:1;height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden}
+.ats-score-fill{height:100%;background:linear-gradient(90deg,#4caf50,#2e7d32);border-radius:4px;transition:width 0.8s ease}
+.ats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.ats-block{background:#f5f5f3;border-radius:8px;padding:12px}
+.ats-block-title{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.ats-keywords{display:flex;flex-wrap:wrap;gap:5px}
+.ats-kw{font-size:11px;background:#e8f5e9;color:#2e7d32;border:0.5px solid #c8e6c9;border-radius:4px;padding:2px 8px}
+.ats-kw-new{background:#e3f2fd;color:#1565c0;border-color:#bbdefb}
+.ats-tips{list-style:none;padding:0}
+.ats-tips li{font-size:12px;color:#555;padding:4px 0;border-bottom:0.5px solid #f0f0f0;display:flex;align-items:flex-start;gap:6px}
+.ats-tips li:last-child{border-bottom:none}
+.ats-tip-icon{color:#2e7d32;flex-shrink:0;margin-top:1px}
+/* CV Preview */
 .cv-doc{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:2rem;font-family:Georgia,serif}
-.cv-name{font-size:24px;font-weight:700;color:#1a1a1a;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.cv-contact{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:#666;margin-bottom:1.5rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.cv-sec{margin-bottom:1.25rem}
-.cv-sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#888;border-bottom:1px solid #e0e0e0;padding-bottom:5px;margin-bottom:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.cv-profile-text{font-size:13px;color:#333;line-height:1.7}
-.cv-exp{margin-bottom:12px}
-.cv-exp-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
-.cv-exp-title{font-size:14px;font-weight:600;color:#1a1a1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.cv-name{font-size:24px;font-weight:700;color:#1a1a1a;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-align:center}
+.cv-contact{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:#666;margin-bottom:1.25rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;justify-content:center}
+.cv-sec{margin-bottom:1rem}
+.cv-sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#888;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.cv-profile-text{font-size:13px;color:#333;line-height:1.6}
+.cv-exp{margin-bottom:10px}
+.cv-exp-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1px}
+.cv-exp-title{font-size:13px;font-weight:600;color:#1a1a1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 .cv-exp-date{font-size:11px;color:#999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.cv-exp-company{font-size:12px;color:#666;margin-bottom:5px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.cv-exp-desc{font-size:12px;color:#444;line-height:1.65}
+.cv-exp-company{font-size:12px;color:#666;margin-bottom:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.cv-exp-desc{font-size:12px;color:#444;line-height:1.55}
 .cv-tags{display:flex;flex-wrap:wrap;gap:5px}
 .cv-tag{font-size:11px;background:#f0f0f0;border-radius:4px;padding:3px 9px;color:#444;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.cv-edu{margin-bottom:8px}
+.cv-edu{margin-bottom:6px}
 .cv-edu-top{display:flex;justify-content:space-between;align-items:baseline}
 .cv-edu-title{font-size:13px;font-weight:600;color:#1a1a1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 .cv-edu-year{font-size:11px;color:#999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 .cv-edu-inst{font-size:12px;color:#666;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 @media(max-width:540px){
   .grid-2{grid-template-columns:1fr}
+  .ats-grid{grid-template-columns:1fr}
   .lang-row{grid-template-columns:1fr 1fr}
   .steps{flex-wrap:wrap;gap:12px}
   .step-arrow{display:none}
@@ -98,14 +117,11 @@ textarea{resize:vertical;line-height:1.6}
 </style>
 </head>
 <body>
-
 <div class="topbar">
   <span class="topbar-brand">CV ATS Generator</span>
   <span class="topbar-badge">Optimizado para ATS</span>
 </div>
-
 <div class="app">
-
   <div class="hero">
     <h1>Tu CV, optimizado para pasar filtros</h1>
     <p>Completá tus datos, la IA reescribe tu perfil para maximizar el score en sistemas ATS</p>
@@ -117,7 +133,6 @@ textarea{resize:vertical;line-height:1.6}
       <div class="step"><div class="step-num">3</div> Descargá el PDF</div>
     </div>
   </div>
-
   <div class="card">
     <div class="card-header"><span class="card-title">Datos personales</span></div>
     <div class="grid-2">
@@ -128,7 +143,6 @@ textarea{resize:vertical;line-height:1.6}
     </div>
     <div class="field"><label>LinkedIn <span class="optional">opcional</span></label><input type="text" id="linkedin" placeholder="linkedin.com/in/tu-perfil"></div>
   </div>
-
   <div class="card">
     <div class="card-header">
       <span class="card-title">Perfil profesional</span>
@@ -139,19 +153,16 @@ textarea{resize:vertical;line-height:1.6}
       <textarea id="perfil" rows="4" placeholder="Ej: Soy técnico en electrónica con 10 años de experiencia en calidad industrial..."></textarea>
     </div>
   </div>
-
   <div class="card">
     <div class="card-header"><span class="card-title">Experiencia laboral</span></div>
     <div id="exp-container"></div>
     <button class="btn-add" onclick="addExp()">+ Agregar experiencia</button>
   </div>
-
   <div class="card">
     <div class="card-header"><span class="card-title">Educación</span></div>
     <div id="edu-container"></div>
     <button class="btn-add" onclick="addEdu()">+ Agregar educación</button>
   </div>
-
   <div class="card">
     <div class="card-header"><span class="card-title">Habilidades</span></div>
     <div class="skills-wrap" id="skills-wrap"></div>
@@ -160,18 +171,15 @@ textarea{resize:vertical;line-height:1.6}
       <button class="btn-skill" onclick="addSkill()">Agregar</button>
     </div>
   </div>
-
   <div class="card">
     <div class="card-header"><span class="card-title">Idiomas</span></div>
     <div id="lang-container"></div>
     <button class="btn-add" onclick="addLang()">+ Agregar idioma</button>
   </div>
-
   <div class="card">
     <div class="card-header"><span class="card-title">Certificaciones <span class="optional">opcional</span></span></div>
     <textarea id="certs" rows="3" placeholder="Ej: ISO 9001 Lead Auditor — Bureau Veritas (2022)&#10;Cambridge First Certificate B2 (2010)"></textarea>
   </div>
-
   <div class="generate-area">
     <button class="btn-generate" id="btn-gen" onclick="generateCV()">Generar CV optimizado</button>
     <div class="loading" id="loading">
@@ -181,7 +189,6 @@ textarea{resize:vertical;line-height:1.6}
       </div>
     </div>
   </div>
-
   <div class="preview-wrap" id="preview-wrap">
     <div class="preview-header">
       <span class="preview-title">Tu CV optimizado</span>
@@ -190,104 +197,69 @@ textarea{resize:vertical;line-height:1.6}
         <button class="btn-dl" onclick="downloadPDF()">Descargar PDF</button>
       </div>
     </div>
-    <div class="ats-note" id="ats-note"></div>
+    <!-- ATS Feedback Panel -->
+    <div class="ats-panel" id="ats-panel"></div>
+    <!-- CV Preview -->
     <div class="cv-doc" id="cv-preview"></div>
   </div>
-
 </div>
-
 <script>
 let expCount=0,eduCount=0,langCount=0;
 let skills=[];
 let cvData=null;
-
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const IDIOMAS=['Español','Inglés','Portugués','Francés','Italiano','Alemán','Chino (Mandarín)','Japonés','Árabe','Hindi','Ruso','Coreano','Otro'];
-
-function mesesOpts(){
-  return '<option value="">Mes</option>'+MESES.map(m=>`<option value="${m}">${m}</option>`).join('');
-}
-function aniosOpts(){
-  let o='<option value="">Año</option>';
-  for(let y=new Date().getFullYear();y>=1970;y--) o+=`<option value="${y}">${y}</option>`;
-  return o;
-}
-function aniosEduOpts(){
-  let o='<option value="">Año</option>';
-  for(let y=new Date().getFullYear();y>=1950;y--) o+=`<option value="${y}">${y}</option>`;
-  return o;
-}
-function idiomasOpts(){
-  return IDIOMAS.map(i=>`<option value="${i}">${i}</option>`).join('');
-}
-
+function mesesOpts(){return '<option value="">Mes</option>'+MESES.map(m=>`<option value="${m}">${m}</option>`).join('');}
+function aniosOpts(){let o='<option value="">Año</option>';for(let y=new Date().getFullYear();y>=1970;y--)o+=`<option value="${y}">${y}</option>`;return o;}
+function aniosEduOpts(){let o='<option value="">Año</option>';for(let y=new Date().getFullYear();y>=1950;y--)o+=`<option value="${y}">${y}</option>`;return o;}
+function idiomasOpts(){return IDIOMAS.map(i=>`<option value="${i}">${i}</option>`).join('');}
 function toggleHasta(id){
   const cb=document.getElementById('exp-actual-'+id);
   const hm=document.getElementById('exp-hasta-mes-'+id);
   const hy=document.getElementById('exp-hasta-anio-'+id);
-  hm.disabled=cb.checked; hy.disabled=cb.checked;
+  hm.disabled=cb.checked;hy.disabled=cb.checked;
   if(cb.checked){hm.value='';hy.value='';}
 }
-
 function addExp(){
-  expCount++;
-  const id=expCount;
-  const d=document.createElement('div');
-  d.className='exp-item';d.id='exp-'+id;
-  d.innerHTML=`
-    <div class="exp-item-top"><span class="exp-label">Experiencia ${id}</span><button class="btn-remove" onclick="rm('exp-${id}')">Eliminar</button></div>
-    <div class="grid-2">
-      <div class="field"><label>Empresa</label><input type="text" id="exp-emp-${id}" placeholder="Nombre de la empresa"></div>
-      <div class="field"><label>Cargo</label><input type="text" id="exp-cargo-${id}" placeholder="Tu puesto"></div>
-    </div>
-    <div class="grid-2" style="margin-bottom:8px">
-      <div class="field"><label>Desde</label><div style="display:flex;gap:6px"><select id="exp-desde-mes-${id}" style="flex:1.2">${mesesOpts()}</select><select id="exp-desde-anio-${id}" style="flex:1">${aniosOpts()}</select></div></div>
-      <div class="field"><label>Hasta</label><div style="display:flex;gap:6px"><select id="exp-hasta-mes-${id}" style="flex:1.2">${mesesOpts()}</select><select id="exp-hasta-anio-${id}" style="flex:1">${aniosOpts()}</select></div></div>
-    </div>
-    <div class="checkbox-row">
-      <input type="checkbox" id="exp-actual-${id}" onchange="toggleHasta(${id})">
-      <label for="exp-actual-${id}">Actualmente trabajo aquí</label>
-    </div>
-    <div class="field"><label>Descripción de tareas y logros</label><textarea id="exp-desc-${id}" rows="3" placeholder="Describí tus responsabilidades y logros principales..."></textarea></div>`;
+  expCount++;const id=expCount;
+  const d=document.createElement('div');d.className='exp-item';d.id='exp-'+id;
+  d.innerHTML=`<div class="exp-item-top"><span class="exp-label">Experiencia ${id}</span><button class="btn-remove" onclick="rm('exp-${id}')">Eliminar</button></div>
+  <div class="grid-2">
+    <div class="field"><label>Empresa</label><input type="text" id="exp-emp-${id}" placeholder="Nombre de la empresa"></div>
+    <div class="field"><label>Cargo</label><input type="text" id="exp-cargo-${id}" placeholder="Tu puesto"></div>
+  </div>
+  <div class="grid-2" style="margin-bottom:8px">
+    <div class="field"><label>Desde</label><div style="display:flex;gap:6px"><select id="exp-desde-mes-${id}" style="flex:1.2">${mesesOpts()}</select><select id="exp-desde-anio-${id}" style="flex:1">${aniosOpts()}</select></div></div>
+    <div class="field"><label>Hasta</label><div style="display:flex;gap:6px"><select id="exp-hasta-mes-${id}" style="flex:1.2">${mesesOpts()}</select><select id="exp-hasta-anio-${id}" style="flex:1">${aniosOpts()}</select></div></div>
+  </div>
+  <div class="checkbox-row"><input type="checkbox" id="exp-actual-${id}" onchange="toggleHasta(${id})"><label for="exp-actual-${id}">Actualmente trabajo aquí</label></div>
+  <div class="field"><label>Descripción de tareas y logros</label><textarea id="exp-desc-${id}" rows="3" placeholder="Describí tus responsabilidades y logros principales..."></textarea></div>`;
   document.getElementById('exp-container').appendChild(d);
 }
-
 function addEdu(){
-  eduCount++;
-  const id=eduCount;
-  const d=document.createElement('div');
-  d.className='exp-item';d.id='edu-'+id;
-  d.innerHTML=`
-    <div class="exp-item-top"><span class="exp-label">Educación ${id}</span><button class="btn-remove" onclick="rm('edu-${id}')">Eliminar</button></div>
-    <div class="grid-2">
-      <div class="field"><label>Título / Carrera</label><input type="text" id="edu-titulo-${id}" placeholder="Ej: Técnico Electrónico"></div>
-      <div class="field"><label>Institución</label><input type="text" id="edu-inst-${id}" placeholder="Nombre de la institución"></div>
-    </div>
-    <div class="field" style="max-width:200px"><label>Año de egreso</label><select id="edu-anio-${id}">${aniosEduOpts()}</select></div>`;
+  eduCount++;const id=eduCount;
+  const d=document.createElement('div');d.className='exp-item';d.id='edu-'+id;
+  d.innerHTML=`<div class="exp-item-top"><span class="exp-label">Educación ${id}</span><button class="btn-remove" onclick="rm('edu-${id}')">Eliminar</button></div>
+  <div class="grid-2">
+    <div class="field"><label>Título / Carrera</label><input type="text" id="edu-titulo-${id}" placeholder="Ej: Técnico Electrónico"></div>
+    <div class="field"><label>Institución</label><input type="text" id="edu-inst-${id}" placeholder="Nombre de la institución"></div>
+  </div>
+  <div class="field" style="max-width:200px"><label>Año de egreso</label><select id="edu-anio-${id}">${aniosEduOpts()}</select></div>`;
   document.getElementById('edu-container').appendChild(d);
 }
-
 function addLang(){
-  langCount++;
-  const id=langCount;
-  const d=document.createElement('div');
-  d.className='lang-row';d.id='lang-'+id;
-  d.innerHTML=`
-    <div class="field"><label>Idioma</label><select id="lang-n-${id}">${idiomasOpts()}</select></div>
-    <div class="field"><label>Nivel</label><select id="lang-v-${id}"><option>Nativo</option><option>Avanzado (C1/C2)</option><option>Intermedio (B1/B2)</option><option>Básico (A1/A2)</option></select></div>
-    <button class="btn-remove" style="margin-top:18px" onclick="rm('lang-${id}')">✕</button>`;
+  langCount++;const id=langCount;
+  const d=document.createElement('div');d.className='lang-row';d.id='lang-'+id;
+  d.innerHTML=`<div class="field"><label>Idioma</label><select id="lang-n-${id}">${idiomasOpts()}</select></div>
+  <div class="field"><label>Nivel</label><select id="lang-v-${id}"><option>Nativo</option><option>Avanzado (C1/C2)</option><option>Intermedio (B1/B2)</option><option>Básico (A1/A2)</option></select></div>
+  <button class="btn-remove" style="margin-top:18px" onclick="rm('lang-${id}')">✕</button>`;
   document.getElementById('lang-container').appendChild(d);
 }
-
 function rm(id){const e=document.getElementById(id);if(e)e.remove();}
-
 function addSkill(){
   const inp=document.getElementById('skill-input');
-  const val=inp.value.trim();
-  if(!val)return;
-  val.split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{
-    if(!skills.includes(s)){skills.push(s);renderSkills();}
-  });
+  const val=inp.value.trim();if(!val)return;
+  val.split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{if(!skills.includes(s)){skills.push(s);renderSkills();}});
   inp.value='';
 }
 function removeSkill(s){skills=skills.filter(x=>x!==s);renderSkills();}
@@ -296,12 +268,10 @@ function renderSkills(){
     `<div class="skill-chip">${s}<button onclick="removeSkill('${s.replace(/'/g,"\\'")}')">×</button></div>`
   ).join('');
 }
-
 function collect(){
   const exps=[],edus=[],langs=[];
   for(let i=1;i<=expCount;i++){
-    const emp=document.getElementById('exp-emp-'+i);
-    if(!emp||!emp.value) continue;
+    const emp=document.getElementById('exp-emp-'+i);if(!emp||!emp.value)continue;
     const actual=document.getElementById('exp-actual-'+i)?.checked;
     const desdeM=document.getElementById('exp-desde-mes-'+i)?.value||'';
     const desdeA=document.getElementById('exp-desde-anio-'+i)?.value||'';
@@ -312,49 +282,44 @@ function collect(){
     exps.push({empresa:emp.value,cargo:document.getElementById('exp-cargo-'+i)?.value||'',desde,hasta,desc:document.getElementById('exp-desc-'+i)?.value||''});
   }
   for(let i=1;i<=eduCount;i++){
-    const t=document.getElementById('edu-titulo-'+i);
-    if(!t||!t.value) continue;
+    const t=document.getElementById('edu-titulo-'+i);if(!t||!t.value)continue;
     edus.push({titulo:t.value,inst:document.getElementById('edu-inst-'+i)?.value||'',anio:document.getElementById('edu-anio-'+i)?.value||''});
   }
   for(let i=1;i<=langCount;i++){
-    const n=document.getElementById('lang-n-'+i);
-    if(!n||!n.value) continue;
+    const n=document.getElementById('lang-n-'+i);if(!n||!n.value)continue;
     langs.push({nombre:n.value,nivel:document.getElementById('lang-v-'+i)?.value||''});
   }
   return {nombre:document.getElementById('nombre').value,email:document.getElementById('email').value,telefono:document.getElementById('telefono').value,ubicacion:document.getElementById('ubicacion').value,linkedin:document.getElementById('linkedin').value,perfil:document.getElementById('perfil').value,experiencias:exps,educacion:edus,habilidades:skills,idiomas:langs,certificaciones:document.getElementById('certs').value};
 }
-
 async function generateCV(){
   const data=collect();
   if(!data.nombre||!data.email||!data.perfil){alert('Completá al menos nombre, email y perfil profesional.');return;}
   document.getElementById('btn-gen').disabled=true;
   document.getElementById('loading').style.display='block';
   document.getElementById('preview-wrap').style.display='none';
-
   const prompt=`Sos un experto en recursos humanos y optimización de CVs para sistemas ATS en el mercado latinoamericano.
-
 Tu tarea es optimizar el siguiente CV para maximizar su score en sistemas ATS, usando keywords relevantes y verbos de acción.
-
 DATOS DEL CANDIDATO:
 ${JSON.stringify(data,null,2)}
-
 INSTRUCCIONES:
-- Reescribí el perfil profesional con keywords ATS, en primera persona, máximo 4 oraciones claras
+- Reescribí el perfil profesional con keywords ATS, en primera persona, MÁXIMO 3 oraciones claras y concisas
 - Optimizá las descripciones de experiencia con verbos de acción y métricas cuando estén disponibles
 - Mantené toda la información real, solo optimizá el lenguaje
-- En "habilidades_sugeridas" incluí ÚNICAMENTE habilidades que NO estén ya en la lista de habilidades del candidato. Si no hay habilidades nuevas para agregar, devolvé un array vacío []
+- En "habilidades_sugeridas" incluí ÚNICAMENTE habilidades que NO estén ya en la lista de habilidades del candidato. Si no hay nuevas, devolvé []
+- En "keywords_detectadas" listá las keywords ATS más importantes que aparecen en el CV (máximo 10)
+- En "keywords_agregadas" listá las keywords nuevas que agregaste vos al optimizar (máximo 5)
+- En "tips_ats" dá 3 consejos concretos sobre por qué este CV va a performar bien en sistemas ATS
 - Respondé ÚNICAMENTE con JSON válido, sin texto adicional ni backticks
-
 Formato de respuesta:
-{"perfil_optimizado":"...","experiencias_optimizadas":[{"empresa":"...","cargo":"...","desde":"...","hasta":"...","desc_optimizada":"..."}],"habilidades_sugeridas":["..."],"mensaje":"Una oración sobre las optimizaciones realizadas"}`;
-
+{"perfil_optimizado":"...","experiencias_optimizadas":[{"empresa":"...","cargo":"...","desde":"...","hasta":"...","desc_optimizada":"..."}],"habilidades_sugeridas":["..."],"keywords_detectadas":["..."],"keywords_agregadas":["..."],"tips_ats":["...","...","..."],"score_ats":85,"mensaje":"Una oración sobre las optimizaciones realizadas"}`;
   try{
     const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     const result=await resp.json();
-    if(result.error) throw new Error(result.error);
+    if(result.error)throw new Error(result.error);
     const text=result.result.replace(/```json|```/g,'').trim();
     const opt=JSON.parse(text);
     cvData={...data,...opt};
+    renderATSPanel(cvData);
     renderPreview(cvData);
   }catch(e){
     alert('Error al generar el CV: '+e.message);
@@ -362,9 +327,40 @@ Formato de respuesta:
   }
   document.getElementById('loading').style.display='none';
 }
-
+function renderATSPanel(cv){
+  const score=cv.score_ats||80;
+  const kwDetectadas=(cv.keywords_detectadas||[]).map(k=>`<span class="ats-kw">${k}</span>`).join('');
+  const kwAgregadas=(cv.keywords_agregadas||[]).map(k=>`<span class="ats-kw ats-kw-new">${k}</span>`).join('');
+  const tips=(cv.tips_ats||[]).map(t=>`<li><span class="ats-tip-icon">✓</span>${t}</li>`).join('');
+  document.getElementById('ats-panel').innerHTML=`
+    <div class="ats-panel-title">Análisis ATS de tu CV</div>
+    <div class="ats-score">
+      <div>
+        <div class="ats-score-num">${score}</div>
+        <div style="font-size:11px;color:#666">Score ATS estimado</div>
+      </div>
+      <div style="flex:1">
+        <div class="ats-score-bar"><div class="ats-score-fill" style="width:${score}%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#aaa;margin-top:3px"><span>0</span><span>50</span><span>100</span></div>
+      </div>
+    </div>
+    <div class="ats-grid">
+      <div class="ats-block">
+        <div class="ats-block-title">Keywords detectadas en tu CV</div>
+        <div class="ats-keywords">${kwDetectadas||'<span style="font-size:12px;color:#aaa">No detectadas</span>'}</div>
+      </div>
+      <div class="ats-block">
+        <div class="ats-block-title">Keywords agregadas por la IA</div>
+        <div class="ats-keywords">${kwAgregadas||'<span style="font-size:12px;color:#aaa">Ninguna adicional</span>'}</div>
+      </div>
+    </div>
+    <div class="ats-block">
+      <div class="ats-block-title">Por qué tu CV va a pasar los filtros</div>
+      <ul class="ats-tips">${tips}</ul>
+    </div>
+  `;
+}
 function renderPreview(cv){
-  if(cv.mensaje) document.getElementById('ats-note').textContent='ATS: '+cv.mensaje;
   const expHtml=(cv.experiencias_optimizadas||cv.experiencias||[]).map(e=>`
     <div class="cv-exp">
       <div class="cv-exp-top"><span class="cv-exp-title">${e.cargo||''}</span><span class="cv-exp-date">${e.desde||''} – ${e.hasta||''}</span></div>
@@ -395,47 +391,71 @@ function renderPreview(cv){
   document.getElementById('preview-wrap').scrollIntoView({behavior:'smooth'});
   document.getElementById('btn-gen').disabled=false;
 }
-
 function editCV(){
   document.getElementById('preview-wrap').style.display='none';
   window.scrollTo({top:0,behavior:'smooth'});
 }
-
 function downloadPDF(){
   if(!cvData)return;
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
-  const mg=20,pw=210,mw=pw-mg*2;
+  const mg=18,pw=210,mw=pw-mg*2;
   let y=mg;
-  const line=(text,sz,wt,color)=>{
+  const line=(text,sz,wt,color,align)=>{
     doc.setFontSize(sz);doc.setFont('helvetica',wt||'normal');
     doc.setTextColor(...(color||[26,26,26]));
     const lines=doc.splitTextToSize(String(text||''),mw);
-    lines.forEach(l=>{if(y>278){doc.addPage();y=mg;}doc.text(l,mg,y);y+=sz*0.42;});
+    lines.forEach(l=>{
+      if(y>282){doc.addPage();y=mg;}
+      if(align==='center') doc.text(l,pw/2,y,{align:'center'});
+      else doc.text(l,mg,y);
+      y+=sz*0.38;
+    });
   };
-  const sec=(t)=>{y+=5;doc.setDrawColor(220,220,220);doc.setLineWidth(0.3);doc.line(mg,y,pw-mg,y);y+=5;line(t.toUpperCase(),8,'bold',[140,140,140]);y+=2;};
-  line(cvData.nombre||'',20,'bold');y+=2;
+  const sec=(t)=>{
+    y+=3;doc.setDrawColor(210,210,210);doc.setLineWidth(0.3);
+    doc.line(mg,y,pw-mg,y);y+=4;
+    line(t.toUpperCase(),7.5,'bold',[150,150,150]);y+=1;
+  };
+  // Nombre centrado
+  line(cvData.nombre||'',18,'bold',[26,26,26],'center');y+=1;
   const ct=[cvData.email,cvData.telefono,cvData.ubicacion,cvData.linkedin].filter(Boolean).join('  |  ');
-  line(ct,9,'normal',[100,100,100]);y+=6;
-  if(cvData.perfil_optimizado){sec('Perfil Profesional');line(cvData.perfil_optimizado,10,'normal',[60,60,60]);y+=4;}
+  doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor(110,110,110);
+  doc.text(ct,pw/2,y,{align:'center'});y+=5;
+  if(cvData.perfil_optimizado){sec('Perfil Profesional');line(cvData.perfil_optimizado,9.5,'normal',[60,60,60]);y+=2;}
   const exps=cvData.experiencias_optimizadas||cvData.experiencias||[];
   if(exps.length){
     sec('Experiencia Profesional');
     exps.forEach(e=>{
-      line(`${e.cargo||''} — ${e.empresa||''}`,11,'bold');
-      line(`${e.desde||''} – ${e.hasta||''}`,9,'normal',[130,130,130]);
-      y+=1;line(e.desc_optimizada||e.desc||'',10,'normal',[70,70,70]);y+=4;
+      doc.setFontSize(10.5);doc.setFont('helvetica','bold');doc.setTextColor(26,26,26);
+      const cargoEmp=`${e.cargo||''} — ${e.empresa||''}`;
+      const fecha=`${e.desde||''} – ${e.hasta||''}`;
+      const cargoW=doc.getTextWidth(cargoEmp);
+      const fechaW=doc.getTextWidth(fecha);
+      if(y>282){doc.addPage();y=mg;}
+      doc.text(cargoEmp,mg,y);
+      doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor(140,140,140);
+      doc.text(fecha,pw-mg-fechaW*0.72,y);
+      y+=4.5;
+      line(e.desc_optimizada||e.desc||'',9,'normal',[70,70,70]);y+=2;
     });
   }
-  if(cvData.educacion?.length){sec('Educación');cvData.educacion.forEach(e=>{line(`${e.titulo||''} — ${e.inst||''} (${e.anio||''})`,10,'normal');y+=2;});y+=2;}
+  if(cvData.educacion?.length){
+    sec('Educación');
+    cvData.educacion.forEach(e=>{line(`${e.titulo||''} — ${e.inst||''} (${e.anio||''})`,9.5,'normal');y+=1.5;});
+    y+=1;
+  }
   const skRaw=[...(cvData.habilidades||[]),...(cvData.habilidades_sugeridas||[])];
   const sk=[...new Set(skRaw.map(s=>s.trim()).filter(Boolean))];
-  if(sk.length){sec('Habilidades');line(sk.join(' • '),10,'normal');y+=4;}
-  if(cvData.idiomas?.length){sec('Idiomas');cvData.idiomas.forEach(l=>{line(`${l.nombre} — ${l.nivel}`,10,'normal');y+=2;});y+=2;}
-  if(cvData.certificaciones){sec('Certificaciones');line(cvData.certificaciones,10,'normal');}
+  if(sk.length){sec('Habilidades');line(sk.join(' • '),9.5,'normal');y+=2;}
+  if(cvData.idiomas?.length){
+    sec('Idiomas');
+    cvData.idiomas.forEach(l=>{line(`${l.nombre} — ${l.nivel}`,9.5,'normal');y+=1;});
+    y+=1;
+  }
+  if(cvData.certificaciones){sec('Certificaciones');line(cvData.certificaciones,9,'normal');}
   doc.save(`CV_${(cvData.nombre||'CV').replace(/\s+/g,'_')}.pdf`);
 }
-
 addExp();addEdu();addLang();
 </script>
 </body>
