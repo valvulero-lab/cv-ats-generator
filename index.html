@@ -146,6 +146,14 @@ textarea{resize:vertical;line-height:1.6}
 .cv-edu-title{font-size:13px;font-weight:600;color:#1a1a1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 .cv-edu-year{font-size:11px;color:#999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 .cv-edu-inst{font-size:12px;color:#666;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:1.5rem;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.12)}
+.modal-title{font-size:15px;font-weight:500;color:#1a1a1a;margin-bottom:8px}
+.modal-msg{font-size:14px;color:#555;line-height:1.6;margin-bottom:1.25rem}
+.modal-actions{display:flex;justify-content:flex-end}
+.modal-btn{background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 24px;font-size:14px;font-weight:500;cursor:pointer}
+.modal-btn:hover{opacity:0.85}
 @media(max-width:540px){
   .grid-2{grid-template-columns:1fr}
   .ats-grid{grid-template-columns:1fr}
@@ -271,6 +279,14 @@ function toggleHasta(id){
 }
 
 // Feature 2: Claude AI Helper para descripción de experiencia
+function showModal(msg, title){
+  document.getElementById('modal-title').textContent = title||'';
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('active');
+}
 function toggleClaudeHelper(id){
   const helper=document.getElementById('claude-helper-'+id);
   helper.style.display=helper.style.display==='none'||helper.style.display===''?'block':'none';
@@ -279,7 +295,7 @@ async function askClaude(id){
   const empresa=document.getElementById('exp-emp-'+id)?.value||'la empresa';
   const cargo=document.getElementById('exp-cargo-'+id)?.value||'el puesto';
   const userText=document.getElementById('claude-input-'+id)?.value?.trim();
-  if(!userText){alert('Contanos algo sobre lo que hacías en ese trabajo.');return;}
+  if(!userText){showModal('Contanos algo sobre lo que hacías en ese trabajo antes de generar la descripción.','Campo requerido');return;}
   const btn=document.getElementById('claude-send-'+id);
   btn.disabled=true;btn.textContent='Generando...';
   const prompt=`Sos un experto en redacción de CVs profesionales optimizados para ATS.
@@ -296,7 +312,7 @@ Respondé ÚNICAMENTE con el texto de la descripción, sin JSON, sin bullets, se
     document.getElementById('claude-result-'+id).style.display='block';
     document.getElementById('claude-use-'+id).style.display='inline-block';
   }catch(e){
-    alert('Error al consultar Claude: '+e.message);
+    showModal('No se pudo conectar con Claude. Intentá de nuevo.', 'Error');
   }
   btn.disabled=false;btn.textContent='Generar descripción';
 }
@@ -421,10 +437,10 @@ ${pdfText.substring(0,8000)}`;
     const data=JSON.parse(text);
     populateForm(data);
     loadingEl.style.display='none';
-    alert('CV importado. Revisá y editá los campos antes de generar.');
+    showModal('Revisá y editá los campos antes de generar el CV optimizado.', 'CV importado correctamente');
   }catch(e){
     loadingEl.style.display='none';
-    alert('Error al importar: '+e.message);
+    showModal('No se pudo importar el PDF. '+e.message, 'Error al importar');
   }
   document.getElementById('pdf-input').value='';
 }
@@ -547,7 +563,7 @@ function collect(){
 
 async function generateCV(){
   const data=collect();
-  if(!data.nombre||!data.email||!data.perfil){alert('Completá al menos nombre, email y perfil profesional.');return;}
+  if(!data.nombre||!data.email||!data.perfil){showModal('Completá al menos nombre, email y perfil profesional antes de continuar.', 'Campos requeridos');return;}
   document.getElementById('btn-gen').disabled=true;
   document.getElementById('loading').style.display='block';
   document.getElementById('preview-wrap').style.display='none';
@@ -577,7 +593,7 @@ Formato:
     renderATSPanel(cvData);
     renderPreview(cvData);
   }catch(e){
-    alert('Error al generar el CV: '+e.message);
+    showModal('Ocurrió un error al generar el CV. Intentá de nuevo.', 'Error');
     document.getElementById('btn-gen').disabled=false;
   }
   document.getElementById('loading').style.display='none';
@@ -726,5 +742,14 @@ function downloadPDF(){
 
 addExp();addEdu();addLang();
 </script>
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-msg" id="modal-msg"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeModal()">Aceptar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
