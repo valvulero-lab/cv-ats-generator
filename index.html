@@ -486,13 +486,33 @@ function populateForm(data){
   skills=[];
   (data.habilidades||[]).forEach(h=>{if(h&&!skills.includes(h))skills.push(h);});
   renderSkills();
-  // Highlight empty date dropdowns
+  // Highlight all empty fields after import
   setTimeout(()=>{
+    // Date dropdowns — only non-disabled ones
     document.querySelectorAll('[id^="exp-desde-mes-"],[id^="exp-desde-anio-"],[id^="exp-hasta-mes-"],[id^="exp-hasta-anio-"]').forEach(el=>{
-      if(!el.value) el.classList.add('needs-attention');
-      el.addEventListener('change',()=>el.classList.remove('needs-attention'),{once:true});
+      if(!el.value && !el.disabled){
+        el.classList.add('needs-attention');
+        el.addEventListener('change',()=>el.classList.remove('needs-attention'),{once:true});
+      } else {
+        el.classList.remove('needs-attention');
+      }
     });
-  },100);
+    // Edu year dropdowns
+    document.querySelectorAll('[id^="edu-anio-"]').forEach(el=>{
+      if(!el.value){
+        el.classList.add('needs-attention');
+        el.addEventListener('change',()=>el.classList.remove('needs-attention'),{once:true});
+      }
+    });
+    // Text inputs: ciudad and linkedin
+    ['ubicacion','linkedin'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&!el.value){
+        el.style.borderColor='#e53935';el.style.background='#fff8f8';
+        el.addEventListener('input',()=>{el.style.borderColor='';el.style.background='';},{once:true});
+      }
+    });
+  },200);
 }
 
 function collect(){
