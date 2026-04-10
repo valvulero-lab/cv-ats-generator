@@ -444,7 +444,10 @@ function populateForm(data){
     if(e.empresa) document.getElementById('exp-emp-'+id).value=e.empresa;
     if(e.cargo) document.getElementById('exp-cargo-'+id).value=e.cargo;
     if(e.desc) document.getElementById('exp-desc-'+id).value=e.desc;
-    if(e.hasta&&e.hasta.toLowerCase().includes('actual')) document.getElementById('exp-actual-'+id).checked=true;
+    if(e.hasta&&e.hasta.toLowerCase().includes('actual')){
+      document.getElementById('exp-actual-'+id).checked=true;
+      toggleHasta(id);
+    }
     const desdeParts=(e.desde||'').split(' ');
     if(desdeParts.length>=2){
       const mesEl=document.getElementById('exp-desde-mes-'+id);
