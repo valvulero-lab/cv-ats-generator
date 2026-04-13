@@ -198,6 +198,29 @@ textarea{resize:vertical;line-height:1.6}
     </div>
   </div>
 
+  <!-- Objetivo -->
+  <div class="objetivo-card">
+    <div class="card-header" style="margin-bottom:1rem">
+      <span class="card-title">¿Cuál es tu objetivo?</span>
+      <span class="card-hint">Esto define cómo Claude optimiza tu CV</span>
+    </div>
+    <div class="objetivo-options">
+      <div class="objetivo-btn selected" id="obj-general" onclick="selectObjetivo('general')">
+        <div class="obj-icon">📄</div>
+        <div class="obj-title">CV general</div>
+        <div class="obj-sub">Optimizado para cualquier búsqueda</div>
+      </div>
+      <div class="objetivo-btn" id="obj-especifico" onclick="selectObjetivo('especifico')">
+        <div class="obj-icon">🎯</div>
+        <div class="obj-title">Puesto específico</div>
+        <div class="obj-sub">Optimizado para un rol en particular</div>
+      </div>
+    </div>
+    <div class="objetivo-input-wrap" id="objetivo-input-wrap">
+      <input type="text" id="puesto-objetivo" placeholder="Ej: Gerente de Operaciones, Analista de Calidad, Project Manager...">
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-header">
       <span class="card-title">Datos personales</span>
