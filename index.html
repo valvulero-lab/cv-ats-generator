@@ -695,7 +695,7 @@ function renderPreview(cv){
   document.getElementById('preview-wrap').style.display='block';
   setTimeout(()=>{
     const el=document.getElementById('preview-wrap');
-    const top=el.getBoundingClientRect().top+window.scrollY-16;
+    const top=el.getBoundingClientRect().top+window.scrollY-80;
     window.scrollTo({top,behavior:'smooth'});
   },50);
   document.getElementById('btn-gen').disabled=false;
