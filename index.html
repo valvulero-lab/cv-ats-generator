@@ -117,6 +117,14 @@ textarea{resize:vertical;line-height:1.6}
 .btn-word{background:none;border:0.5px solid #1565c0;color:#1565c0;border-radius:8px;padding:9px 20px;font-size:13px;cursor:pointer;font-weight:500;transition:all 0.15s}
 .btn-word:hover{background:#e3f2fd}
 .btn-word:disabled{opacity:0.4;cursor:not-allowed}
+/* Gauge */
+.gauge-wrap{display:flex;align-items:center;gap:24px;margin-bottom:1rem}
+.gauge-svg{flex-shrink:0}
+.gauge-info{flex:1}
+.gauge-score-label{font-size:11px;color:#888;margin-top:4px}
+.gauge-legend{display:flex;gap:12px;margin-top:8px}
+.gauge-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#888}
+.gauge-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 /* ATS Panel */
 .ats-panel{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
 .ats-panel-title{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:1rem}
@@ -350,7 +358,7 @@ Describió su trabajo con estas palabras: "${userText}"
 Generá una descripción profesional de 3-4 puntos para el CV usando verbos de acción en primera persona (pasado o presente según corresponda), con lenguaje profesional y keywords ATS relevantes.
 Respondé ÚNICAMENTE con el texto de la descripción, sin JSON, sin bullets, separando cada punto con un salto de línea. Sin texto adicional.`;
   try{
-    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt2})});
+    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     const result=await resp.json();
     if(result.error)throw new Error(result.error);
     const generatedText=result.result.trim();
@@ -477,7 +485,7 @@ INSTRUCCIONES IMPORTANTES:
 
 TEXTO DEL CV:
 ${pdfText.substring(0,8000)}`;
-    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt2})});
+    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     const result=await resp.json();
     if(result.error)throw new Error(result.error);
     const text=result.result.replace(/```json|```/g,'').trim();
@@ -666,16 +674,41 @@ function renderATSPanel(cv){
   const kwAgregadas=(cv.keywords_agregadas||[]).map(k=>`<span class="ats-kw ats-kw-new">${k}</span>`).join('');
   const tips=(cv.tips_ats||[]).map(t=>`<li><span class="ats-tip-icon">✓</span>${t}</li>`).join('');
   const showSugerencias=score<95&&(cv.sugerencias_mejora||[]).length>0;
+
+  // Gauge calculation
+  const r=54, cx=70, cy=70;
+  const startAngle=-210, endAngle=30; // 240 degree arc
+  const totalAngle=240;
+  const scoreAngle=startAngle+(score/100)*totalAngle;
+  const toRad=a=>a*Math.PI/180;
+  const arcPath=(a1,a2,radius)=>{
+    const x1=cx+radius*Math.cos(toRad(a1));
+    const y1=cy+radius*Math.sin(toRad(a1));
+    const x2=cx+radius*Math.cos(toRad(a2));
+    const y2=cy+radius*Math.sin(toRad(a2));
+    const large=Math.abs(a2-a1)>180?1:0;
+    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2}`;
+  };
+  const label=score>=80?'Excelente':score>=60?'Bueno':score>=40?'Regular':'Necesita mejoras';
+
   document.getElementById('ats-panel').innerHTML=`
     <div class="ats-panel-title">Análisis ATS de tu CV</div>
-    <div class="ats-score">
-      <div>
-        <div class="ats-score-num" style="color:${scoreColor}">${score}</div>
-        <div style="font-size:11px;color:#666">Score ATS estimado</div>
-      </div>
-      <div style="flex:1">
-        <div class="ats-score-bar"><div class="ats-score-fill" style="width:${score}%;background:linear-gradient(90deg,${scoreColor},${scoreColor})"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:#aaa;margin-top:3px"><span>0</span><span>50</span><span>100</span></div>
+    <div class="gauge-wrap">
+      <svg class="gauge-svg" width="140" height="110" viewBox="0 0 140 110">
+        <path d="${arcPath(-210,30,r)}" fill="none" stroke="#f0f0f0" stroke-width="10" stroke-linecap="round"/>
+        <path d="${arcPath(-210,scoreAngle,r)}" fill="none" stroke="${scoreColor}" stroke-width="10" stroke-linecap="round"/>
+        <text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="24" font-weight="700" fill="${scoreColor}" font-family="Arial">${score}</text>
+        <text x="${cx}" y="${cy+24}" text-anchor="middle" font-size="10" fill="#aaa" font-family="Arial">/ 100</text>
+      </svg>
+      <div class="gauge-info">
+        <div style="font-size:18px;font-weight:500;color:${scoreColor}">${label}</div>
+        <div class="gauge-score-label">Score ATS estimado</div>
+        <div class="gauge-legend">
+          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#c62828"></div>0–39</div>
+          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#e65100"></div>40–59</div>
+          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#e65100"></div>60–79</div>
+          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#2e7d32"></div>80+</div>
+        </div>
       </div>
     </div>
     <div class="ats-grid">
