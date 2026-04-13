@@ -58,6 +58,19 @@ textarea{resize:vertical;line-height:1.6}
 .checkbox-row input[type=checkbox]{width:auto;margin:0;cursor:pointer}
 .checkbox-row label{font-size:13px;color:#555;cursor:pointer;font-weight:400}
 /* Import PDF */
+.objetivo-card{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.objetivo-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:0}
+.objetivo-btn{border:1.5px solid #e0e0e0;border-radius:10px;padding:1rem;cursor:pointer;background:#fafafa;transition:all 0.15s;text-align:left}
+.objetivo-btn:hover{border-color:#1a1a1a;background:#f0f0f0}
+.objetivo-btn.selected{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
+.objetivo-btn.selected .obj-title{color:#fff}
+.objetivo-btn.selected .obj-sub{color:#aaa}
+.obj-icon{font-size:20px;margin-bottom:6px}
+.obj-title{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:2px}
+.obj-sub{font-size:11px;color:#888}
+.objetivo-input-wrap{display:none;margin-top:12px}
+.objetivo-input-wrap input{font-size:14px}
+@media(max-width:540px){.objetivo-options{grid-template-columns:1fr}}
 .import-area{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
 .import-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
 .import-title{font-size:14px;font-weight:500;color:#1a1a1a}
@@ -283,6 +296,12 @@ function toggleHasta(id){
 }
 
 // Feature 2: Claude AI Helper para descripción de experiencia
+function selectObjetivo(tipo){
+  document.getElementById('obj-general').classList.toggle('selected', tipo==='general');
+  document.getElementById('obj-especifico').classList.toggle('selected', tipo==='especifico');
+  document.getElementById('objetivo-input-wrap').style.display=tipo==='especifico'?'block':'none';
+  if(tipo==='especifico') document.getElementById('puesto-objetivo').focus();
+}
 function showModal(msg, title){
   document.getElementById('modal-title').textContent = title||'';
   document.getElementById('modal-msg').textContent = msg;
@@ -308,7 +327,7 @@ Describió su trabajo con estas palabras: "${userText}"
 Generá una descripción profesional de 3-4 puntos para el CV usando verbos de acción en primera persona (pasado o presente según corresponda), con lenguaje profesional y keywords ATS relevantes.
 Respondé ÚNICAMENTE con el texto de la descripción, sin JSON, sin bullets, separando cada punto con un salto de línea. Sin texto adicional.`;
   try{
-    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt2})});
     const result=await resp.json();
     if(result.error)throw new Error(result.error);
     const generatedText=result.result.trim();
@@ -435,7 +454,7 @@ INSTRUCCIONES IMPORTANTES:
 
 TEXTO DEL CV:
 ${pdfText.substring(0,8000)}`;
-    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt2})});
     const result=await resp.json();
     if(result.error)throw new Error(result.error);
     const text=result.result.replace(/```json|```/g,'').trim();
@@ -573,12 +592,19 @@ function collect(){
 
 async function generateCV(){
   const data=collect();
-  if(!data.nombre||!data.email||!data.perfil){showModal('Completá al menos nombre, email y perfil profesional antes de continuar.', 'Campos requeridos');return;}
+  if(!data.nombre||!data.email||!data.perfil){showModal('Completá al menos nombre, email y perfil profesional antes de continuar.','Campos requeridos');return;}
   document.getElementById('btn-gen').disabled=true;
   document.getElementById('loading').style.display='block';
   document.getElementById('preview-wrap').style.display='none';
-  const prompt=`Sos un experto en recursos humanos y optimización de CVs para sistemas ATS en el mercado latinoamericano.
-Tu tarea es optimizar el siguiente CV para maximizar su score en sistemas ATS, usando keywords relevantes y verbos de acción.
+
+  const puestoObjetivo=document.getElementById('puesto-objetivo')?.value?.trim();
+  const esPuestoEspecifico=document.getElementById('obj-especifico')?.classList.contains('selected')&&puestoObjetivo;
+  const lineaObjetivo=esPuestoEspecifico
+    ? 'El usuario quiere aplicar específicamente al puesto: "'+puestoObjetivo+'". Optimizá el CV priorizando las keywords, habilidades y verbos de acción más relevantes para ESE ROL en particular.'
+    : 'Optimizá el CV de forma general para maximizar su compatibilidad con sistemas ATS en búsquedas laborales amplias.';
+
+  const prompt2=`Sos un experto en recursos humanos y optimización de CVs para sistemas ATS en el mercado latinoamericano.
+${lineaObjetivo}
 DATOS DEL CANDIDATO:
 ${JSON.stringify(data,null,2)}
 INSTRUCCIONES:
@@ -593,8 +619,9 @@ INSTRUCCIONES:
 - Respondé ÚNICAMENTE con JSON válido, sin texto adicional ni backticks
 Formato:
 {"perfil_optimizado":"...","experiencias_optimizadas":[{"empresa":"...","cargo":"...","desde":"...","hasta":"...","desc_optimizada":"..."}],"habilidades_sugeridas":[],"keywords_detectadas":[],"keywords_agregadas":[],"tips_ats":["...","...","..."],"sugerencias_mejora":["...","...","..."],"score_ats":85,"mensaje":"..."}`;
-  try{
-    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+
+    try{
+    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt2})});
     const result=await resp.json();
     if(result.error)throw new Error(result.error);
     const text=result.result.replace(/```json|```/g,'').trim();
