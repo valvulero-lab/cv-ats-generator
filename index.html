@@ -693,7 +693,8 @@ function renderPreview(cv){
     ${cv.certificaciones?`<div class="cv-sec"><div class="cv-sec-title">Certificaciones</div><div class="cv-exp-desc">${cv.certificaciones.replace(/\n/g,'<br>')}</div></div>`:''}
   `;
   document.getElementById('preview-wrap').style.display='block';
-  document.getElementById('preview-wrap').scrollIntoView({behavior:'smooth'});
+  document.getElementById('preview-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+  window.scrollBy({top:-20,behavior:'smooth'});
   document.getElementById('btn-gen').disabled=false;
 }
 
