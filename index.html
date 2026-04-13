@@ -675,55 +675,38 @@ function renderATSPanel(cv){
   const tips=(cv.tips_ats||[]).map(t=>`<li><span class="ats-tip-icon">✓</span>${t}</li>`).join('');
   const showSugerencias=score<95&&(cv.sugerencias_mejora||[]).length>0;
 
-  // Speedometer gauge
+  // Gauge - arco simple
   const label=score>=80?'Excelente':score>=60?'Bueno':score>=40?'Regular':'Necesita mejoras';
   const toRad=a=>a*Math.PI/180;
-  // SVG 220x130, center at 110,115, radius 85, track 12px
-  const cx=110,cy=115,r=85,tw=12;
-  // Arc goes from 180° (left) to 0° (right), clockwise = decreasing angle
-  // score=0 -> 180°, score=100 -> 0°
-  const pt=(deg,rad)=>({x:cx+rad*Math.cos(toRad(deg)),y:cy+rad*Math.sin(toRad(deg))});
-  const arc=(a1,a2,rad)=>{
-    const s=pt(a1,rad),e=pt(a2,rad);
-    return `M ${s.x.toFixed(1)} ${s.y.toFixed(1)} A ${rad} ${rad} 0 0 1 ${e.x.toFixed(1)} ${e.y.toFixed(1)}`;
+  const r=54,cx=70,cy=70;
+  const startAngle=-210,totalAngle=240;
+  const scoreAngle=startAngle+(score/100)*totalAngle;
+  const arcPath=(a1,a2,radius)=>{
+    const x1=cx+radius*Math.cos(toRad(a1));
+    const y1=cy+radius*Math.sin(toRad(a1));
+    const x2=cx+radius*Math.cos(toRad(a2));
+    const y2=cy+radius*Math.sin(toRad(a2));
+    const large=Math.abs(a2-a1)>180?1:0;
+    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2}`;
   };
-  const needleDeg=180-(score/100)*180;
-  const tip=pt(needleDeg,r-6);
-  const b1=pt(needleDeg+90,7);
-  const b2=pt(needleDeg-90,7);
 
   document.getElementById('ats-panel').innerHTML=`
     <div class="ats-panel-title">Análisis ATS de tu CV</div>
     <div class="gauge-wrap">
-      <svg width="220" height="130" viewBox="0 0 220 130" style="flex-shrink:0">
-        <defs>
-          <linearGradient id="ga" gradientUnits="userSpaceOnUse" x1="${pt(180,r).x}" y1="${pt(180,r).y}" x2="${pt(0,r).x}" y2="${pt(0,r).y}">
-            <stop offset="0%" stop-color="#e53935"/>
-            <stop offset="40%" stop-color="#fb8c00"/>
-            <stop offset="70%" stop-color="#fdd835"/>
-            <stop offset="100%" stop-color="#43a047"/>
-          </linearGradient>
-        </defs>
-        <!-- Background track -->
-        <path d="${arc(180,0,r)}" fill="none" stroke="#eeeeee" stroke-width="${tw+2}" stroke-linecap="round"/>
-        <!-- Colored track -->
-        <path d="${arc(180,0,r)}" fill="none" stroke="url(#ga)" stroke-width="${tw}" stroke-linecap="round"/>
-        <!-- Grey overlay from score to end -->
-        <path d="${arc(needleDeg,0,r)}" fill="none" stroke="rgba(240,240,240,0.85)" stroke-width="${tw}"/>
-        <!-- Needle -->
-        <line x1="${cx}" y1="${cy}" x2="${tip.x.toFixed(1)}" y2="${tip.y.toFixed(1)}" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="${cx}" cy="${cy}" r="7" fill="#1a1a1a"/>
-        <circle cx="${cx}" cy="${cy}" r="4" fill="#fff"/>
-        <!-- Score -->
-        <text x="${cx}" y="${cy-18}" text-anchor="middle" font-size="28" font-weight="700" fill="${scoreColor}" font-family="Arial,sans-serif">${score}</text>
-        <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="9" fill="#bbb" font-family="Arial,sans-serif">/ 100</text>
-        <!-- Corner labels -->
-        <text x="14" y="122" font-size="9" fill="#e53935" font-family="Arial,sans-serif">Bajo</text>
-        <text x="206" y="122" text-anchor="end" font-size="9" fill="#43a047" font-family="Arial,sans-serif">Alto</text>
+      <svg class="gauge-svg" width="140" height="110" viewBox="0 0 140 110">
+        <path d="${arcPath(-210,30,r)}" fill="none" stroke="#f0f0f0" stroke-width="10" stroke-linecap="round"/>
+        <path d="${arcPath(-210,scoreAngle,r)}" fill="none" stroke="${scoreColor}" stroke-width="10" stroke-linecap="round"/>
+        <text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="24" font-weight="700" fill="${scoreColor}" font-family="Arial">${score}</text>
+        <text x="${cx}" y="${cy+24}" text-anchor="middle" font-size="10" fill="#aaa" font-family="Arial">/ 100</text>
       </svg>
       <div class="gauge-info">
-        <div style="font-size:20px;font-weight:600;color:${scoreColor};margin-bottom:4px">${label}</div>
-        <div style="font-size:12px;color:#888">Score ATS estimado</div>
+        <div style="font-size:18px;font-weight:500;color:${scoreColor}">${label}</div>
+        <div class="gauge-score-label">Score ATS estimado</div>
+        <div class="gauge-legend">
+          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#c62828"></div>0–39</div>
+          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#e65100"></div>40–79</div>
+          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#2e7d32"></div>80+</div>
+        </div>
       </div>
     </div>
     <div class="ats-grid">
