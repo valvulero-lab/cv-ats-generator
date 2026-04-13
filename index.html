@@ -675,40 +675,68 @@ function renderATSPanel(cv){
   const tips=(cv.tips_ats||[]).map(t=>`<li><span class="ats-tip-icon">✓</span>${t}</li>`).join('');
   const showSugerencias=score<95&&(cv.sugerencias_mejora||[]).length>0;
 
-  // Gauge calculation
-  const r=54, cx=70, cy=70;
-  const startAngle=-210, endAngle=30; // 240 degree arc
-  const totalAngle=240;
-  const scoreAngle=startAngle+(score/100)*totalAngle;
-  const toRad=a=>a*Math.PI/180;
-  const arcPath=(a1,a2,radius)=>{
-    const x1=cx+radius*Math.cos(toRad(a1));
-    const y1=cy+radius*Math.sin(toRad(a1));
-    const x2=cx+radius*Math.cos(toRad(a2));
-    const y2=cy+radius*Math.sin(toRad(a2));
-    const large=Math.abs(a2-a1)>180?1:0;
-    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2}`;
-  };
+  // Speedometer gauge
   const label=score>=80?'Excelente':score>=60?'Bueno':score>=40?'Regular':'Necesita mejoras';
+  const toRad=a=>a*Math.PI/180;
+  const cx=100,cy=95,r=72,trackW=14;
+  // Arc from 180deg to 0deg (left to right semicircle)
+  const startDeg=180, endDeg=0, totalDeg=180;
+  const scoreDeg=startDeg - (score/100)*totalDeg;
+  const arcPt=(deg,radius)=>({x:cx+radius*Math.cos(toRad(deg)),y:cy+radius*Math.sin(toRad(deg))});
+  const describeArc=(a1,a2,rad)=>{
+    const s=arcPt(a1,rad),e=arcPt(a2,rad);
+    const large=Math.abs(a1-a2)>180?1:0;
+    return `M ${s.x} ${s.y} A ${rad} ${rad} 0 ${large} 1 ${e.x} ${e.y}`;
+  };
+  // Needle
+  const needleDeg=scoreDeg;
+  const needleTip=arcPt(needleDeg,r-8);
+  const needleBase1=arcPt(needleDeg+90,8);
+  const needleBase2=arcPt(needleDeg-90,8);
+  // Gradient stops for arc (red->yellow->green)
+  // We draw 3 colored segments
+  const seg1End=startDeg-(40/100)*totalDeg; // 0-40 red
+  const seg2End=startDeg-(70/100)*totalDeg; // 40-70 yellow
+  const seg3End=endDeg;                      // 70-100 green
 
   document.getElementById('ats-panel').innerHTML=`
     <div class="ats-panel-title">Análisis ATS de tu CV</div>
     <div class="gauge-wrap">
-      <svg class="gauge-svg" width="140" height="110" viewBox="0 0 140 110">
-        <path d="${arcPath(-210,30,r)}" fill="none" stroke="#f0f0f0" stroke-width="10" stroke-linecap="round"/>
-        <path d="${arcPath(-210,scoreAngle,r)}" fill="none" stroke="${scoreColor}" stroke-width="10" stroke-linecap="round"/>
-        <text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="24" font-weight="700" fill="${scoreColor}" font-family="Arial">${score}</text>
-        <text x="${cx}" y="${cy+24}" text-anchor="middle" font-size="10" fill="#aaa" font-family="Arial">/ 100</text>
+      <svg class="gauge-svg" width="200" height="115" viewBox="0 0 200 115">
+        <defs>
+          <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#e53935"/>
+            <stop offset="100%" stop-color="#fb8c00"/>
+          </linearGradient>
+          <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#fb8c00"/>
+            <stop offset="100%" stop-color="#fdd835"/>
+          </linearGradient>
+          <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#fdd835"/>
+            <stop offset="100%" stop-color="#43a047"/>
+          </linearGradient>
+        </defs>
+        <!-- Track background -->
+        <path d="${describeArc(180,0,r)}" fill="none" stroke="#f0f0f0" stroke-width="${trackW}" stroke-linecap="round"/>
+        <!-- Colored segments -->
+        <path d="${describeArc(180,seg1End,r)}" fill="none" stroke="url(#g1)" stroke-width="${trackW}"/>
+        <path d="${describeArc(seg1End,seg2End,r)}" fill="none" stroke="url(#g2)" stroke-width="${trackW}"/>
+        <path d="${describeArc(seg2End,0,r)}" fill="none" stroke="url(#g3)" stroke-width="${trackW}"/>
+        <!-- Needle -->
+        <polygon points="${needleTip.x},${needleTip.y} ${needleBase1.x},${needleBase1.y} ${needleBase2.x},${needleBase2.y}" fill="#1a1a1a"/>
+        <circle cx="${cx}" cy="${cy}" r="6" fill="#1a1a1a"/>
+        <!-- Score text -->
+        <text x="${cx}" y="${cy-16}" text-anchor="middle" font-size="26" font-weight="700" fill="${scoreColor}" font-family="Arial">${score}</text>
+        <text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Arial">/ 100</text>
+        <!-- Labels -->
+        <text x="22" y="105" text-anchor="middle" font-size="9" fill="#e53935" font-family="Arial">Bajo</text>
+        <text x="${cx}" y="112" text-anchor="middle" font-size="9" fill="#fb8c00" font-family="Arial">Regular</text>
+        <text x="178" y="105" text-anchor="middle" font-size="9" fill="#43a047" font-family="Arial">Excelente</text>
       </svg>
       <div class="gauge-info">
-        <div style="font-size:18px;font-weight:500;color:${scoreColor}">${label}</div>
+        <div style="font-size:20px;font-weight:600;color:${scoreColor}">${label}</div>
         <div class="gauge-score-label">Score ATS estimado</div>
-        <div class="gauge-legend">
-          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#c62828"></div>0–39</div>
-          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#e65100"></div>40–59</div>
-          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#e65100"></div>60–79</div>
-          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#2e7d32"></div>80+</div>
-        </div>
       </div>
     </div>
     <div class="ats-grid">
