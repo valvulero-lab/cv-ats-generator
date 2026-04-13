@@ -101,6 +101,9 @@ textarea{resize:vertical;line-height:1.6}
 .btn-dl:hover{background:#333}
 .btn-back{background:none;border:0.5px solid #e0e0e0;border-radius:8px;padding:9px 20px;font-size:13px;cursor:pointer;color:#555}
 .btn-back:hover{background:#f5f5f5}
+.btn-word{background:none;border:0.5px solid #1565c0;color:#1565c0;border-radius:8px;padding:9px 20px;font-size:13px;cursor:pointer;font-weight:500;transition:all 0.15s}
+.btn-word:hover{background:#e3f2fd}
+.btn-word:disabled{opacity:0.4;cursor:not-allowed}
 /* ATS Panel */
 .ats-panel{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
 .ats-panel-title{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:1rem}
@@ -252,6 +255,7 @@ textarea{resize:vertical;line-height:1.6}
       <span class="preview-title">Tu CV optimizado</span>
       <div class="preview-actions">
         <button class="btn-back" onclick="editCV()">Editar</button>
+        <button class="btn-word" id="btn-word" onclick="downloadWord()">Descargar Word</button>
         <button class="btn-dl" onclick="downloadPDF()">Descargar PDF</button>
       </div>
     </div>
@@ -698,6 +702,29 @@ function editCV(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+async function downloadWord(){
+  if(!cvData)return;
+  const btn=document.getElementById('btn-word');
+  btn.disabled=true;btn.textContent='Generando...';
+  try{
+    const resp=await fetch('/api/generate-docx',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({cv:cvData})
+    });
+    if(!resp.ok){const e=await resp.json();throw new Error(e.error||'Error');}
+    const blob=await resp.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`CV_${(cvData.nombre||'CV').replace(/\s+/g,'_')}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }catch(e){
+    showModal('No se pudo generar el Word: '+e.message,'Error');
+  }
+  btn.disabled=false;btn.textContent='Descargar Word';
+}
 function downloadPDF(){
   if(!cvData)return;
   const{jsPDF}=window.jspdf;
