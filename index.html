@@ -138,6 +138,7 @@ textarea{resize:vertical;line-height:1.6}
 .ats-keywords{display:flex;flex-wrap:wrap;gap:5px}
 .ats-kw{font-size:11px;background:#e8f5e9;color:#2e7d32;border:0.5px solid #c8e6c9;border-radius:4px;padding:2px 8px}
 .ats-kw-new{background:#e3f2fd;color:#1565c0;border-color:#bbdefb}
+.ats-kw-missing{font-size:11px;background:#fff3e0;color:#e65100;border:0.5px solid #ffcc80;border-radius:4px;padding:2px 8px}
 .ats-tips{list-style:none;padding:0}
 .ats-tips li{font-size:12px;color:#555;padding:4px 0;border-bottom:0.5px solid #f0f0f0;display:flex;align-items:flex-start;gap:6px}
 .ats-tips li:last-child{border-bottom:none}
@@ -225,7 +226,14 @@ textarea{resize:vertical;line-height:1.6}
       </div>
     </div>
     <div class="objetivo-input-wrap" id="objetivo-input-wrap">
-      <input type="text" id="puesto-objetivo" placeholder="Ej: Gerente de Operaciones, Analista de Calidad, Project Manager...">
+      <div class="field" style="margin-bottom:10px">
+        <label>Puesto al que querés aplicar</label>
+        <input type="text" id="puesto-objetivo" placeholder="Ej: Gerente de Operaciones, Analista de Calidad...">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Descripción de la oferta laboral <span class="optional">opcional — mejora la precisión</span></label>
+        <textarea id="oferta-laboral" rows="5" placeholder="Pegá acá el texto completo de la oferta laboral. Claude va a comparar tu CV contra los requisitos específicos y detectar keywords que faltan..."></textarea>
+      </div>
     </div>
   </div>
 
@@ -630,26 +638,32 @@ async function generateCV(){
 
   const puestoObjetivo=document.getElementById('puesto-objetivo')?.value?.trim();
   const esPuestoEspecifico=document.getElementById('obj-especifico')?.classList.contains('selected')&&puestoObjetivo;
+  const ofertaLaboral=document.getElementById('oferta-laboral')?.value?.trim();
+  const tieneOferta=esPuestoEspecifico&&ofertaLaboral&&ofertaLaboral.length>50;
   const lineaObjetivo=esPuestoEspecifico
-    ? 'El usuario quiere aplicar específicamente al puesto: "'+puestoObjetivo+'". Optimizá el CV priorizando las keywords, habilidades y verbos de acción más relevantes para ESE ROL en particular.'
+    ? tieneOferta
+      ? 'El usuario quiere aplicar al puesto: "'+puestoObjetivo+'". Tenés la descripción completa de la oferta laboral. Optimizá el CV para matchear específicamente esa oferta, priorizando sus keywords y requisitos.'
+      : 'El usuario quiere aplicar específicamente al puesto: "'+puestoObjetivo+'". Optimizá el CV priorizando las keywords, habilidades y verbos de acción más relevantes para ESE ROL.'
     : 'Optimizá el CV de forma general para maximizar su compatibilidad con sistemas ATS en búsquedas laborales amplias.';
 
   const prompt2=`Sos un experto en recursos humanos y optimización de CVs para sistemas ATS en el mercado latinoamericano.
 ${lineaObjetivo}
 DATOS DEL CANDIDATO:
 ${JSON.stringify(data,null,2)}
+${tieneOferta ? 'DESCRIPCIÓN DE LA OFERTA LABORAL:\n'+ofertaLaboral.substring(0,3000) : ''}
 INSTRUCCIONES:
 - Reescribí el perfil profesional con keywords ATS, en primera persona, MÁXIMO 3 oraciones claras y concisas
 - Optimizá las descripciones de experiencia con verbos de acción y métricas cuando estén disponibles
 - Mantené toda la información real, solo optimizá el lenguaje
 - En "habilidades_sugeridas" incluí ÚNICAMENTE habilidades que NO estén ya en la lista del candidato. Si no hay nuevas, devolvé []
 - En "keywords_detectadas" listá las keywords ATS más importantes del CV (máximo 10)
+${tieneOferta ? '- En \"keywords_faltantes\" listá hasta 8 keywords importantes de la oferta laboral que NO aparecen en el CV del candidato. Estas son las que debería agregar para matchear mejor la oferta.' : '- En \"keywords_faltantes\" devolvé un array vacío []'}
 - En "keywords_agregadas" listá keywords genuinamente nuevas que agregaste (máximo 5). NO incluyas variaciones o traducciones de keywords ya existentes
 - En "tips_ats" dá 3 consejos concretos de por qué este CV va a performar bien en ATS
 - En "sugerencias_mejora" listá 4-5 sugerencias específicas para mejorar aún más el score ATS (solo si el score es menor a 95)
 - Respondé ÚNICAMENTE con JSON válido, sin texto adicional ni backticks
 Formato:
-{"perfil_optimizado":"...","experiencias_optimizadas":[{"empresa":"...","cargo":"...","desde":"...","hasta":"...","desc_optimizada":"..."}],"habilidades_sugeridas":[],"keywords_detectadas":[],"keywords_agregadas":[],"tips_ats":["...","...","..."],"sugerencias_mejora":["...","...","..."],"score_ats":85,"mensaje":"..."}`;
+{"perfil_optimizado":"...","experiencias_optimizadas":[{"empresa":"...","cargo":"...","desde":"...","hasta":"...","desc_optimizada":"..."}],"habilidades_sugeridas":[],"keywords_detectadas":[],"keywords_agregadas":[],"keywords_faltantes":[],"tips_ats":["...","...","..."],"sugerencias_mejora":["...","...","..."],"score_ats":85,"mensaje":"..."}`;
 
     try{
     const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt2})});
@@ -670,12 +684,6 @@ Formato:
 function renderATSPanel(cv){
   const score=cv.score_ats||80;
   const scoreColor=score>=80?'#2e7d32':score>=60?'#e65100':'#c62828';
-  const kwDetectadas=(cv.keywords_detectadas||[]).map(k=>`<span class="ats-kw">${k}</span>`).join('');
-  const kwAgregadas=(cv.keywords_agregadas||[]).map(k=>`<span class="ats-kw ats-kw-new">${k}</span>`).join('');
-  const tips=(cv.tips_ats||[]).map(t=>`<li><span class="ats-tip-icon">✓</span>${t}</li>`).join('');
-  const showSugerencias=score<95&&(cv.sugerencias_mejora||[]).length>0;
-
-  // Gauge - arco simple
   const label=score>=80?'Excelente':score>=60?'Bueno':score>=40?'Regular':'Necesita mejoras';
   const toRad=a=>a*Math.PI/180;
   const r=54,cx=70,cy=70;
@@ -687,86 +695,96 @@ function renderATSPanel(cv){
     const x2=cx+radius*Math.cos(toRad(a2));
     const y2=cy+radius*Math.sin(toRad(a2));
     const large=Math.abs(a2-a1)>180?1:0;
-    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2}`;
+    return 'M '+x1+' '+y1+' A '+radius+' '+radius+' 0 '+large+' 1 '+x2+' '+y2;
   };
 
-  document.getElementById('ats-panel').innerHTML=`
-    <div class="ats-panel-title">Análisis ATS de tu CV</div>
-    <div class="gauge-wrap">
-      <svg class="gauge-svg" width="140" height="110" viewBox="0 0 140 110">
-        <path d="${arcPath(-210,30,r)}" fill="none" stroke="#f0f0f0" stroke-width="10" stroke-linecap="round"/>
-        <path d="${arcPath(-210,scoreAngle,r)}" fill="none" stroke="${scoreColor}" stroke-width="10" stroke-linecap="round"/>
-        <text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="24" font-weight="700" fill="${scoreColor}" font-family="Arial">${score}</text>
-        <text x="${cx}" y="${cy+24}" text-anchor="middle" font-size="10" fill="#aaa" font-family="Arial">/ 100</text>
-      </svg>
-      <div class="gauge-info">
-        <div style="font-size:18px;font-weight:500;color:${scoreColor}">${label}</div>
-        <div class="gauge-score-label">Score ATS estimado</div>
-        <div class="gauge-legend">
-          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#c62828"></div>0–39</div>
-          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#e65100"></div>40–79</div>
-          <div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#2e7d32"></div>80+</div>
-        </div>
-      </div>
-    </div>
-    <div class="ats-grid">
-      <div class="ats-block">
-        <div class="ats-block-title">Keywords en tu CV</div>
-        <div class="ats-keywords">${kwDetectadas||'<span style="font-size:12px;color:#aaa">No detectadas</span>'}</div>
-      </div>
-      <div class="ats-block">
-        <div class="ats-block-title">Keywords agregadas por Claude</div>
-        <div class="ats-keywords">${kwAgregadas||'<span style="font-size:12px;color:#aaa">Ninguna adicional</span>'}</div>
-      </div>
-    </div>
-    <div class="ats-block" style="margin-bottom:${showSugerencias?'0':'0'}">
-      <div class="ats-block-title">Por qué tu CV va a pasar los filtros</div>
-      <ul class="ats-tips">${tips}</ul>
-    </div>
-    <!-- Compatibilidad por plataforma -->
-    <div style="margin-top:1rem">
-      <div class="ats-block-title" style="margin-bottom:10px">Compatibilidad por plataforma ATS</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-        ${['Workday','Taleo','Greenhouse','Lever'].map(p=>{
-          const pasa=score>=75;
-          return `<div style="background:${pasa?'#e8f5e9':'#fce4ec'};border-radius:8px;padding:10px 6px;text-align:center">
-            <div style="font-size:18px;margin-bottom:4px">${pasa?'✓':'✗'}</div>
-            <div style="font-size:11px;font-weight:500;color:${pasa?'#2e7d32':'#c62828'}">${p}</div>
-            <div style="font-size:10px;color:${pasa?'#2e7d32':'#c62828'};margin-top:2px">${pasa?'Compatible':'Revisar'}</div>
-          </div>`;
-        }).join('')}
-      </div>
-      <div style="font-size:10px;color:#bbb;text-align:center;margin-top:6px">Simulación basada en criterios ATS comunes. No afiliado a dichas plataformas.</div>
-    </div>
+  const kwDetectadas=(cv.keywords_detectadas||[]).map(k=>'<span class="ats-kw">'+k+'</span>').join('');
+  const kwFaltantes=(cv.keywords_faltantes||[]);
+  const kwFaltantesHtml=kwFaltantes.map(k=>'<span class="ats-kw-missing">'+k+'</span>').join('');
+  const kwAgregadas=(cv.keywords_agregadas||[]).map(k=>'<span class="ats-kw ats-kw-new">'+k+'</span>').join('');
+  const tips=(cv.tips_ats||[]).map(t=>'<li><span class="ats-tip-icon">✓</span>'+t+'</li>').join('');
+  const showSugerencias=score<95&&(cv.sugerencias_mejora||[]).length>0;
 
-    <!-- Comparativo antes/después -->
-    <div style="margin-top:1rem;background:#f5f5f3;border-radius:8px;padding:14px">
-      <div class="ats-block-title" style="margin-bottom:12px">Tu CV antes y después de la optimización</div>
-      <div style="display:flex;align-items:flex-end;justify-content:center;gap:32px">
-        <div style="text-align:center">
-          <div style="width:48px;height:${Math.round((score*0.55)*1.2)}px;background:#ddd;border-radius:4px 4px 0 0;margin:0 auto"></div>
-          <div style="font-size:13px;font-weight:500;color:#888;margin-top:6px">${Math.round(score*0.55)}%</div>
-          <div style="font-size:11px;color:#aaa">Sin optimizar</div>
-        </div>
-        <div style="font-size:20px;color:#bbb;margin-bottom:20px">→</div>
-        <div style="text-align:center">
-          <div style="width:48px;height:${Math.min(Math.round(score*1.2),120)}px;background:${scoreColor};border-radius:4px 4px 0 0;margin:0 auto"></div>
-          <div style="font-size:13px;font-weight:500;color:${scoreColor};margin-top:6px">${score}%</div>
-          <div style="font-size:11px;color:#aaa">Optimizado</div>
-        </div>
-      </div>
-    </div>
+  // Plataformas
+  const plataformas=['Workday','Taleo','Greenhouse','Lever'];
+  const pasa=score>=75;
+  const platHtml=plataformas.map(p=>
+    '<div style="background:'+(pasa?'#e8f5e9':'#fce4ec')+';border-radius:8px;padding:10px 6px;text-align:center">'+
+    '<div style="font-size:18px;margin-bottom:4px">'+(pasa?'✓':'✗')+'</div>'+
+    '<div style="font-size:11px;font-weight:500;color:'+(pasa?'#2e7d32':'#c62828')+'">'+p+'</div>'+
+    '<div style="font-size:10px;color:'+(pasa?'#2e7d32':'#c62828')+';margin-top:2px">'+(pasa?'Compatible':'Revisar')+'</div>'+
+    '</div>'
+  ).join('');
 
-    ${showSugerencias?`
-    <button class="btn-sugerencias" id="btn-sug" onclick="toggleSugerencias()" style="display:block">
-      Cómo subir el score a 95+
-    </button>
-    <div class="sugerencias-panel" id="sug-panel">
-      <div class="sugerencias-title">Sugerencias para mejorar tu score ATS</div>
-      <ul class="sugerencias-list">${(cv.sugerencias_mejora||[]).map(s=>`<li><span class="sug-icon">→</span>${s}</li>`).join('')}</ul>
-    </div>`:''}
-  `;
+  // Antes/después
+  const scoreAntes=Math.round(score*0.55);
+  const alturaAntes=Math.max(20,Math.round(scoreAntes*1.0));
+  const alturaOptimizado=Math.min(100,Math.round(score*1.0));
+
+  // Sugerencias
+  const sugHtml=showSugerencias?
+    '<button class="btn-sugerencias" id="btn-sug" onclick="toggleSugerencias()" style="display:block">Cómo subir el score a 95+</button>'+
+    '<div class="sugerencias-panel" id="sug-panel">'+
+    '<div class="sugerencias-title">Sugerencias para mejorar tu score ATS</div>'+
+    '<ul class="sugerencias-list">'+
+    (cv.sugerencias_mejora||[]).map(s=>'<li><span class="sug-icon">→</span>'+s+'</li>').join('')+
+    '</ul></div>':'';
+
+  document.getElementById('ats-panel').innerHTML=
+    '<div class="ats-panel-title">Análisis ATS de tu CV</div>'+
+    '<div class="gauge-wrap">'+
+    '<svg class="gauge-svg" width="140" height="110" viewBox="0 0 140 110">'+
+    '<path d="'+arcPath(-210,30,r)+'" fill="none" stroke="#f0f0f0" stroke-width="10" stroke-linecap="round"/>'+
+    '<path d="'+arcPath(-210,scoreAngle,r)+'" fill="none" stroke="'+scoreColor+'" stroke-width="10" stroke-linecap="round"/>'+
+    '<text x="'+cx+'" y="'+(cy+8)+'" text-anchor="middle" font-size="24" font-weight="700" fill="'+scoreColor+'" font-family="Arial">'+score+'</text>'+
+    '<text x="'+cx+'" y="'+(cy+24)+'" text-anchor="middle" font-size="10" fill="#aaa" font-family="Arial">/ 100</text>'+
+    '</svg>'+
+    '<div class="gauge-info">'+
+    '<div style="font-size:18px;font-weight:500;color:'+scoreColor+'">'+label+'</div>'+
+    '<div class="gauge-score-label">Score ATS estimado</div>'+
+    '<div class="gauge-legend">'+
+    '<div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#c62828"></div>0–39</div>'+
+    '<div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#e65100"></div>40–79</div>'+
+    '<div class="gauge-legend-item"><div class="gauge-legend-dot" style="background:#2e7d32"></div>80+</div>'+
+    '</div></div></div>'+
+    '<div class="ats-grid">'+
+    '<div class="ats-block"><div class="ats-block-title">Keywords en tu CV</div>'+
+    '<div class="ats-keywords">'+(kwDetectadas||'<span style="font-size:12px;color:#aaa">No detectadas</span>')+'</div></div>'+
+    '<div class="ats-block"><div class="ats-block-title">Keywords agregadas por Claude</div>'+
+    '<div class="ats-keywords">'+(kwAgregadas||'<span style="font-size:12px;color:#aaa">Ninguna adicional</span>')+'</div></div>'+
+    '</div>'+
+    (kwFaltantes.length>0?
+    '<div class="ats-block" style="margin-bottom:1rem;border:0.5px solid #ffcc80;background:#fffbf5">'+
+    '<div class="ats-block-title" style="color:#e65100;margin-bottom:8px">⚠ Keywords de la oferta que faltan en tu CV</div>'+
+    '<div class="ats-keywords">'+kwFaltantesHtml+'</div>'+
+    '<div style="font-size:11px;color:#aaa;margin-top:8px">Agregá estas palabras clave para aumentar el match con la oferta</div>'+
+    '</div>':'')+
+    '<div class="ats-block" style="margin-bottom:1rem">'+
+    '<div class="ats-block-title">Por qué tu CV va a pasar los filtros</div>'+
+    '<ul class="ats-tips">'+tips+'</ul></div>'+
+    // Plataformas
+    '<div style="margin-bottom:1rem">'+
+    '<div class="ats-block-title" style="margin-bottom:8px">Compatibilidad por plataforma ATS</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+platHtml+'</div>'+
+    '<div style="font-size:10px;color:#bbb;text-align:center;margin-top:6px">Simulación basada en criterios ATS comunes. No afiliado a dichas plataformas.</div>'+
+    '</div>'+
+    // Antes/después
+    '<div style="background:#f5f5f3;border-radius:8px;padding:14px;margin-bottom:1rem">'+
+    '<div class="ats-block-title" style="margin-bottom:14px">Tu CV antes y después de la optimización</div>'+
+    '<div style="display:flex;align-items:flex-end;justify-content:center;gap:32px">'+
+    '<div style="text-align:center">'+
+    '<div style="width:48px;height:'+alturaAntes+'px;background:#ddd;border-radius:4px 4px 0 0;margin:0 auto"></div>'+
+    '<div style="font-size:13px;font-weight:500;color:#888;margin-top:6px">'+scoreAntes+'%</div>'+
+    '<div style="font-size:11px;color:#aaa">Sin optimizar</div></div>'+
+    '<div style="font-size:20px;color:#bbb;margin-bottom:24px">→</div>'+
+    '<div style="text-align:center">'+
+    '<div style="width:48px;height:'+alturaOptimizado+'px;background:'+scoreColor+';border-radius:4px 4px 0 0;margin:0 auto"></div>'+
+    '<div style="font-size:13px;font-weight:500;color:'+scoreColor+';margin-top:6px">'+score+'%</div>'+
+    '<div style="font-size:11px;color:#aaa">Optimizado</div></div>'+
+    '</div></div>'+
+    sugHtml;
 }
+
 
 function toggleSugerencias(){
   const panel=document.getElementById('sug-panel');
