@@ -190,6 +190,27 @@ textarea{resize:vertical;line-height:1.6}
   .steps{flex-wrap:wrap;gap:12px}
   .step-arrow{display:none}
 }
+.topbar-nav{display:flex;gap:4px;align-items:center}
+.nav-link{background:none;border:none;font-family:inherit;font-size:14px;font-weight:500;color:#666;padding:8px 12px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s}
+.nav-link:hover{background:#f5f5f3;color:#1a1a1a}
+.nav-link.active{background:#1a1a1a;color:#fff}
+.nav-panel{max-height:0;overflow:hidden;background:#fafaf9;border-bottom:0.5px solid #e0e0e0;transition:max-height .25s ease}
+.nav-panel.open{max-height:700px}
+.nav-panel-inner{max-width:760px;margin:0 auto;padding:28px 1rem 32px}
+.nav-panel h3{font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:10px}
+.nav-panel p{font-size:15px;color:#444;line-height:1.65;margin-bottom:10px}
+.nav-panel .service-item{margin-bottom:14px}
+.nav-panel .service-item b{color:#1a1a1a;font-size:15px}
+.nav-panel .service-item span{display:block;color:#666;font-size:14px;line-height:1.5;margin-top:2px}
+.nav-panel .contact-email{display:inline-block;font-size:18px;font-weight:700;color:#1a1a1a;background:#fff;border:1px solid #e0e0e0;padding:10px 18px;border-radius:8px;margin:6px 0 12px}
+.nav-panel .faq-item{margin-bottom:16px}
+.nav-panel .faq-item b{display:block;color:#1a1a1a;font-size:15px;margin-bottom:4px}
+.nav-panel .faq-item span{display:block;color:#666;font-size:14px;line-height:1.55}
+@media(max-width:640px){
+  .topbar-inner{flex-wrap:wrap;gap:10px}
+  .topbar-badge{display:none}
+  .topbar-nav{width:100%;overflow-x:auto;justify-content:flex-start}
+}
 </style>
 </head>
 <body>
@@ -202,8 +223,17 @@ textarea{resize:vertical;line-height:1.6}
       <tspan fill="#0a0a0a">cv</tspan><tspan fill="#22c55e">listo</tspan>
     </text>
   </svg>
+  <nav class="topbar-nav">
+    <button type="button" class="nav-link" data-panel="quienes">Quiénes somos</button>
+    <button type="button" class="nav-link" data-panel="servicios">Servicios</button>
+    <button type="button" class="nav-link" data-panel="contacto">Contacto</button>
+    <button type="button" class="nav-link" data-panel="faqs">FAQs</button>
+  </nav>
   <span class="topbar-badge">Optimizado para ATS</span>
 </div>
+</div>
+<div id="navPanel" class="nav-panel">
+  <div class="nav-panel-inner" id="navPanelContent"></div>
 </div>
 <div class="app">
   <div class="hero">
@@ -933,5 +963,52 @@ addExp();addEdu();addLang();
     </div>
   </div>
 </div>
+<script>
+(function(){
+  var panelContent = {
+    quienes: '<h3>Quiénes somos</h3>' +
+      '<p>CV Listo nació de una necesidad real: pasar por procesos de búsqueda laboral y sentir que el CV no reflejaba lo que uno podía ofrecer, o que se perdía en los filtros automáticos antes de llegar a una persona. Por eso armamos una herramienta simple para resolver ese problema en minutos, con ayuda de inteligencia artificial.</p>',
+    servicios: '<h3>Servicios</h3>' +
+      '<div class="service-item"><b>Optimización con IA</b><span>Reescribe tu perfil y experiencias para maximizar el score en sistemas ATS.</span></div>' +
+      '<div class="service-item"><b>Análisis ATS</b><span>Score visual, keywords detectadas/faltantes y compatibilidad simulada por plataforma (Workday, Taleo, Greenhouse, Lever).</span></div>' +
+      '<div class="service-item"><b>Importar CV existente</b><span>Subís tu CV en PDF y la IA completa el formulario automáticamente.</span></div>' +
+      '<div class="service-item"><b>Ayuda inline con IA</b><span>Asistencia dentro de cada campo de experiencia laboral para redactar mejor.</span></div>' +
+      '<div class="service-item"><b>Descarga en PDF</b><span>Gratis, sin límite.</span></div>' +
+      '<div class="service-item"><b>Descarga en Word (.docx)</b><span>Versión paga.</span></div>',
+    contacto: '<h3>Contacto</h3>' +
+      '<p>¿Tenés dudas o sugerencias? Escribinos:</p>' +
+      '<a class="contact-email" href="mailto:info@cvlisto.com.ar">info@cvlisto.com.ar</a>',
+    faqs: '<h3>Preguntas frecuentes</h3>' +
+      '<div class="faq-item"><b>¿Es realmente gratis?</b><span>El PDF es gratis siempre, sin límite de descargas. El Word tiene un costo.</span></div>' +
+      '<div class="faq-item"><b>¿Mis datos quedan guardados o son seguros?</b><span>Los datos se usan solo para generar tu CV y no se comparten con terceros.</span></div>' +
+      '<div class="faq-item"><b>¿Qué es un sistema ATS y por qué importa?</b><span>Es el software que usan la mayoría de las empresas para filtrar CVs automáticamente antes de que un reclutador los vea. Si tu CV no está optimizado para ese filtro, puede quedar afuera del proceso aunque tengas el perfil correcto.</span></div>' +
+      '<div class="faq-item"><b>¿Puedo editar el CV después de generarlo?</b><span>Sí, podés volver a tu formulario y modificar cualquier dato antes de descargar de nuevo.</span></div>' +
+      '<div class="faq-item"><b>¿Funciona para cualquier tipo de trabajo o industria?</b><span>Sí. Podés generar un CV general para cualquier búsqueda, o uno optimizado para un puesto específico pegando la oferta laboral.</span></div>' +
+      '<div class="faq-item"><b>¿Por qué CV Listo y no otro nombre?</b><span>Porque el objetivo es justamente eso: que tengas tu CV listo, optimizado y sin vueltas, en minutos.</span></div>'
+  };
+
+  var panel = document.getElementById('navPanel');
+  var panelInner = document.getElementById('navPanelContent');
+  var links = document.querySelectorAll('.nav-link');
+  var activeKey = null;
+
+  links.forEach(function(link){
+    link.addEventListener('click', function(){
+      var key = link.getAttribute('data-panel');
+      if (activeKey === key) {
+        panel.classList.remove('open');
+        link.classList.remove('active');
+        activeKey = null;
+        return;
+      }
+      links.forEach(function(l){ l.classList.remove('active'); });
+      link.classList.add('active');
+      panelInner.innerHTML = panelContent[key];
+      panel.classList.add('open');
+      activeKey = key;
+    });
+  });
+})();
+</script>
 </body>
 </html>
