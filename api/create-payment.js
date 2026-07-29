@@ -1,9 +1,17 @@
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 
 const PRECIO_WORD = 3999; // ARS
+const ALLOWED_ORIGINS = ['https://cvlisto.com.ar', 'https://www.cvlisto.com.ar'];
+
+function isVercelPreview(origin) {
+  try { return /\.vercel\.app$/.test(new URL(origin).hostname); }
+  catch (e) { return false; }
+}
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '';
+  const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin) || isVercelPreview(origin);
+  res.setHeader('Access-Control-Allow-Origin', isAllowedOrigin ? origin : ALLOWED_ORIGINS[0]);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
