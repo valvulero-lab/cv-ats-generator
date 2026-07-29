@@ -198,6 +198,9 @@ textarea{resize:vertical;line-height:1.6}
 .nav-panel{position:absolute;top:100%;left:0;right:0;max-height:0;overflow-y:auto;background:#fafaf9;border-bottom:0.5px solid #e0e0e0;box-shadow:0 16px 32px rgba(0,0,0,.10);transition:max-height .25s ease;z-index:9}
 .nav-panel.open{max-height:min(70vh,700px)}
 .nav-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:8}
+.promo-banner{background:#22c55e;color:#06280f;text-align:center;font-size:13px;padding:9px 16px;font-weight:500}
+.promo-banner b{font-weight:700}
+@media(max-width:540px){.promo-banner{font-size:12px;padding:8px 10px}}
 .nav-backdrop.open{opacity:1;pointer-events:auto}
 .nav-panel-inner{max-width:760px;margin:0 auto;padding:28px 1rem 32px}
 .nav-panel h3{font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:10px}
@@ -240,6 +243,9 @@ textarea{resize:vertical;line-height:1.6}
 </div>
 </div>
 <div id="navBackdrop" class="nav-backdrop"></div>
+<div id="promo-banner" class="promo-banner" style="display:none">
+  🎉 <b>Lanzamiento CV Listo:</b> descargá tu CV en Word totalmente gratis hasta el 26 de agosto
+</div>
 <div class="app">
   <div class="hero">
     <h1>Tu CV, optimizado para pasar filtros</h1>
@@ -382,6 +388,16 @@ textarea{resize:vertical;line-height:1.6}
 let expCount=0,eduCount=0,langCount=0;
 let skills=[];
 let cvData=null;
+// PROMO DE LANZAMIENTO — debe coincidir con PROMO_ACTIVA_HASTA en api/generate-docx.js
+const PROMO_ACTIVA_HASTA = new Date('2026-08-26T23:59:59-03:00');
+function promoActiva(){ return new Date() <= PROMO_ACTIVA_HASTA; }
+(function initPromoUI(){
+  if(!promoActiva())return;
+  const btn=document.getElementById('btn-word');
+  if(btn)btn.textContent='Descargar Word — GRATIS por lanzamiento';
+  const banner=document.getElementById('promo-banner');
+  if(banner)banner.style.display='block';
+})();
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const IDIOMAS=['Español','Inglés','Portugués','Francés','Italiano','Alemán','Chino (Mandarín)','Japonés','Árabe','Hindi','Ruso','Coreano','Otro'];
 function mesesOpts(){return '<option value="">Mes</option>'+MESES.map(m=>`<option value="${m}">${m}</option>`).join('');}
@@ -922,9 +938,38 @@ function editCV(){
 
 const CVLISTO_STORAGE_KEY = 'cvlisto_pending_cv';
 
+async function descargarWordArchivo(cv, paymentId){
+  const resp=await fetch('/api/generate-docx',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(paymentId?{cv, paymentId}:{cv})
+  });
+  if(!resp.ok){const e=await resp.json();throw new Error(e.error||'Error');}
+  const blob=await resp.blob();
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`CV_${(cv.nombre||'CV').replace(/\s+/g,'_')}.docx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 async function downloadWord(){
   if(!cvData)return;
   const btn=document.getElementById('btn-word');
+
+  if(promoActiva()){
+    btn.disabled=true;btn.textContent='Generando Word...';
+    try{
+      await descargarWordArchivo(cvData);
+      showModal('¡Listo! Tu Word se descargó correctamente. 🎉 Es gratis durante el lanzamiento.','CV descargado');
+    }catch(e){
+      showModal('No se pudo generar el Word: '+e.message,'Error');
+    }
+    btn.disabled=false;btn.textContent='Descargar Word — GRATIS por lanzamiento';
+    return;
+  }
+
   btn.disabled=true;btn.textContent='Redirigiendo a MercadoPago...';
   try{
     // Guardamos el CV para poder retomarlo cuando vuelva del pago
@@ -941,19 +986,7 @@ async function downloadWord(){
 
 async function generateWordAfterPayment(paymentId, cv){
   try{
-    const resp=await fetch('/api/generate-docx',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({cv, paymentId})
-    });
-    if(!resp.ok){const e=await resp.json();throw new Error(e.error||'Error');}
-    const blob=await resp.blob();
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download=`CV_${(cv.nombre||'CV').replace(/\s+/g,'_')}.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
+    await descargarWordArchivo(cv, paymentId);
     showModal('¡Listo! Tu Word se descargó correctamente.','Pago aprobado');
   }catch(e){
     showModal('El pago se acreditó pero hubo un error generando el Word. Escribinos a info@cvlisto.com.ar con tu número de pago ('+paymentId+') y te lo mandamos. Error: '+e.message,'Error al generar el archivo');
