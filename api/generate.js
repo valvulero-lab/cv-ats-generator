@@ -1,5 +1,15 @@
+const ALLOWED_ORIGINS = ['https://cvlisto.com.ar', 'https://www.cvlisto.com.ar'];
+const MAX_PROMPT_LENGTH = 20000; // suficiente para el CV + instrucciones, evita abuso de costos
+
+function isVercelPreview(origin) {
+  try { return /\.vercel\.app$/.test(new URL(origin).hostname); }
+  catch (e) { return false; }
+}
+
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '';
+  const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin) || isVercelPreview(origin);
+  res.setHeader('Access-Control-Allow-Origin', isAllowedOrigin ? origin : ALLOWED_ORIGINS[0]);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -18,8 +28,11 @@ module.exports = async function handler(req, res) {
 
   const prompt = body && body.prompt;
 
-  if (!prompt) {
+  if (!prompt || typeof prompt !== 'string') {
     return res.status(400).json({ error: 'Falta el prompt', body: JSON.stringify(body) });
+  }
+  if (prompt.length > MAX_PROMPT_LENGTH) {
+    return res.status(413).json({ error: 'El texto enviado es demasiado largo' });
   }
 
   try {
