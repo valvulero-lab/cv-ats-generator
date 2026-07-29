@@ -352,7 +352,7 @@ textarea{resize:vertical;line-height:1.6}
       <span class="preview-title">Tu CV optimizado</span>
       <div class="preview-actions">
         <button class="btn-back" onclick="editCV()">Editar</button>
-        <button class="btn-word" id="btn-word" onclick="downloadWord()">Descargar Word</button>
+        <button class="btn-word" id="btn-word" onclick="downloadWord()">Descargar Word — $3.999</button>
         <button class="btn-dl" onclick="downloadPDF()">Descargar PDF</button>
       </div>
     </div>
@@ -884,29 +884,79 @@ function editCV(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+const CVLISTO_STORAGE_KEY = 'cvlisto_pending_cv';
+
 async function downloadWord(){
   if(!cvData)return;
   const btn=document.getElementById('btn-word');
-  btn.disabled=true;btn.textContent='Generando...';
+  btn.disabled=true;btn.textContent='Redirigiendo a MercadoPago...';
+  try{
+    // Guardamos el CV para poder retomarlo cuando vuelva del pago
+    localStorage.setItem(CVLISTO_STORAGE_KEY, JSON.stringify(cvData));
+    const resp=await fetch('/api/create-payment',{method:'POST',headers:{'Content-Type':'application/json'}});
+    if(!resp.ok){const e=await resp.json();throw new Error(e.error||'Error');}
+    const data=await resp.json();
+    window.location.href=data.init_point;
+  }catch(e){
+    showModal('No se pudo iniciar el pago: '+e.message,'Error');
+    btn.disabled=false;btn.textContent='Descargar Word — $3.999';
+  }
+}
+
+async function generateWordAfterPayment(paymentId, cv){
   try{
     const resp=await fetch('/api/generate-docx',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({cv:cvData})
+      body:JSON.stringify({cv, paymentId})
     });
     if(!resp.ok){const e=await resp.json();throw new Error(e.error||'Error');}
     const blob=await resp.blob();
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;
-    a.download=`CV_${(cvData.nombre||'CV').replace(/\s+/g,'_')}.docx`;
+    a.download=`CV_${(cv.nombre||'CV').replace(/\s+/g,'_')}.docx`;
     a.click();
     URL.revokeObjectURL(url);
+    showModal('¡Listo! Tu Word se descargó correctamente.','Pago aprobado');
   }catch(e){
-    showModal('No se pudo generar el Word: '+e.message,'Error');
+    showModal('El pago se acreditó pero hubo un error generando el Word. Escribinos a info@cvlisto.com.ar con tu número de pago ('+paymentId+') y te lo mandamos. Error: '+e.message,'Error al generar el archivo');
   }
-  btn.disabled=false;btn.textContent='Descargar Word';
 }
+
+// Al cargar la página, chequeamos si venimos de vuelta de MercadoPago
+(function handleReturnFromPayment(){
+  const params=new URLSearchParams(window.location.search);
+  const status=params.get('status');
+  const paymentId=params.get('payment_id');
+  if(!status)return;
+
+  // Limpiar los parámetros de la URL sin recargar la página
+  const cleanUrl=window.location.origin+window.location.pathname;
+  window.history.replaceState({}, document.title, cleanUrl);
+
+  window.addEventListener('DOMContentLoaded', function(){
+    if(status==='approved' && paymentId){
+      const saved=localStorage.getItem(CVLISTO_STORAGE_KEY);
+      if(!saved){
+        showModal('El pago se acreditó, pero no encontramos los datos de tu CV en este navegador. Escribinos a info@cvlisto.com.ar con tu número de pago ('+paymentId+').','Pago aprobado');
+        return;
+      }
+      const cv=JSON.parse(saved);
+      cvData=cv;
+      renderATSPanel(cv);
+      renderPreview(cv);
+      document.getElementById('preview-wrap').style.display='block';
+      generateWordAfterPayment(paymentId, cv);
+      localStorage.removeItem(CVLISTO_STORAGE_KEY);
+    } else if(status==='pending'){
+      showModal('Tu pago está pendiente de acreditación. Cuando se confirme, volvé a esta página y tocá "Descargar Word" de nuevo.','Pago pendiente');
+    } else if(status==='failure' || status==='rejected'){
+      showModal('El pago no se pudo procesar. Podés intentarlo de nuevo cuando quieras.','Pago no completado');
+    }
+  });
+})();
+
 function downloadPDF(){
   if(!cvData)return;
   const{jsPDF}=window.jspdf;
