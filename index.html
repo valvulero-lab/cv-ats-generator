@@ -352,7 +352,7 @@ textarea{resize:vertical;line-height:1.6}
       <span class="preview-title">Tu CV optimizado</span>
       <div class="preview-actions">
         <button class="btn-back" onclick="editCV()">Editar</button>
-        <button class="btn-word" id="btn-word" onclick="downloadWord()">Descargar Word — $3.999</button>
+        <button class="btn-word" id="btn-word" onclick="downloadWord()">Descargar Word — AR$ 3.999.-</button>
         <button class="btn-dl" onclick="downloadPDF()">Descargar PDF</button>
       </div>
     </div>
@@ -908,7 +908,7 @@ async function downloadWord(){
     window.location.href=data.init_point;
   }catch(e){
     showModal('No se pudo iniciar el pago: '+e.message,'Error');
-    btn.disabled=false;btn.textContent='Descargar Word — $3.999';
+    btn.disabled=false;btn.textContent='Descargar Word — AR$ 3.999.-';
   }
 }
 
