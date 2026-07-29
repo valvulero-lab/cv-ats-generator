@@ -11,11 +11,11 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
-.topbar{background:#fff;border-bottom:0.5px solid #e0e0e0;position:sticky;top:0;z-index:10}
+.topbar{background:#0a0a0a;border-bottom:0.5px solid #1a1a1a;position:sticky;top:0;z-index:10}
 .topbar-inner{max-width:760px;margin:0 auto;padding:16px 1rem;display:flex;align-items:center;justify-content:space-between}
 .topbar-brand{font-size:15px;font-weight:500;color:#1a1a1a}
 .topbar-logo{height:40px;width:auto;display:block}
-.topbar-badge{font-size:11px;background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:20px;border:0.5px solid #c8e6c9}
+.topbar-badge{font-size:10px;background:#e8f5e9;color:#2e7d32;padding:3px 10px;border-radius:20px;border:0.5px solid #c8e6c9;white-space:nowrap;flex-shrink:0}
 .app{max-width:760px;margin:0 auto;padding:2rem 1rem 4rem}
 .hero{text-align:center;margin-bottom:2.5rem;padding-top:1rem}
 .hero h1{font-size:32px;font-weight:700;color:#1a1a1a;margin-bottom:10px;letter-spacing:-0.5px}
@@ -75,16 +75,17 @@ textarea{resize:vertical;line-height:1.6}
 .objetivo-input-wrap{display:none;margin-top:12px}
 .objetivo-input-wrap input{font-size:14px}
 @media(max-width:540px){.objetivo-options{grid-template-columns:1fr}}
-.import-area{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.import-area{background:#fff;border:1.5px solid #bbf0cf;border-radius:12px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(34,197,94,0.08)}
 .import-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
-.import-title{font-size:14px;font-weight:500;color:#1a1a1a}
-.import-hint{font-size:11px;color:#aaa}
-.import-drop{border:1.5px dashed #d0d0d0;border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.15s;background:#fafafa}
-.import-drop:hover,.import-drop.dragover{border-color:#1a1a1a;background:#f0f0f0}
-.import-drop p{font-size:13px;color:#888;margin-bottom:8px}
+.import-title{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:2px}
+.import-hint{font-size:12px;color:#666}
+.import-drop{display:block;border:1.5px dashed #7dd8a3;border-radius:8px;padding:1.25rem 1rem;text-align:center;cursor:pointer;transition:all 0.15s;background:#f4fdf7}
+.import-drop:hover,.import-drop.dragover{border-color:#22c55e;background:#e9fbf0}
+.import-drop-icon{margin-bottom:6px}
+.import-drop p{font-size:13px;color:#555;margin:0;line-height:1.5}
+.import-drop p b{color:#1a1a1a}
 .import-drop input[type=file]{display:none}
-.btn-import{font-size:12px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer}
-.import-loading{display:none;text-align:center;padding:1rem;font-size:13px;color:#888}
+.import-loading{display:none;text-align:center;padding:0.75rem 0 0;font-size:13px;color:#666}
 /* Claude AI helper */
 .claude-helper{margin-top:8px;border:0.5px solid #e0e0e0;border-radius:8px;overflow:hidden;display:none}
 .claude-helper-header{background:#1a1a1a;color:#fff;padding:8px 12px;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:space-between}
@@ -191,9 +192,9 @@ textarea{resize:vertical;line-height:1.6}
   .step-arrow{display:none}
 }
 .topbar-nav{display:flex;gap:4px;align-items:center}
-.nav-link{background:none;border:none;font-family:inherit;font-size:14px;font-weight:500;color:#666;padding:8px 12px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s}
-.nav-link:hover{background:#f5f5f3;color:#1a1a1a}
-.nav-link.active{background:#1a1a1a;color:#fff}
+.nav-link{background:none;border:none;font-family:inherit;font-size:14px;font-weight:500;color:#b0b0b0;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap}
+.nav-link:hover{background:#1f1f1f;color:#fff}
+.nav-link.active{background:#22c55e;color:#0a0a0a}
 .nav-panel{position:absolute;top:100%;left:0;right:0;max-height:0;overflow-y:auto;background:#fafaf9;border-bottom:0.5px solid #e0e0e0;box-shadow:0 16px 32px rgba(0,0,0,.10);transition:max-height .25s ease;z-index:9}
 .nav-panel.open{max-height:min(70vh,700px)}
 .nav-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:8}
@@ -219,13 +220,14 @@ textarea{resize:vertical;line-height:1.6}
 <div class="topbar">
 <div class="topbar-inner">
   <svg class="topbar-logo" viewBox="0 0 420 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CV Listo">
-    <circle cx="60" cy="60" r="52" fill="#0a0a0a" stroke="#22c55e" stroke-width="5"/>
+    <circle cx="60" cy="60" r="52" fill="none" stroke="#22c55e" stroke-width="5"/>
     <path d="M36 62 L54 80 L88 42" fill="none" stroke="#22c55e" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
     <text x="128" y="76" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="48">
-      <tspan fill="#0a0a0a">cv</tspan><tspan fill="#22c55e">listo</tspan>
+      <tspan fill="#ffffff">cv</tspan><tspan fill="#22c55e">listo</tspan>
     </text>
   </svg>
   <nav class="topbar-nav">
+    <button type="button" class="nav-link" data-panel="como-funciona">Cómo funciona</button>
     <button type="button" class="nav-link" data-panel="quienes">Quiénes somos</button>
     <button type="button" class="nav-link" data-panel="servicios">Servicios</button>
     <button type="button" class="nav-link" data-panel="contacto">Contacto</button>
@@ -282,16 +284,31 @@ textarea{resize:vertical;line-height:1.6}
     </div>
   </div>
 
+  <div class="import-area" id="import-area">
+    <div class="import-header">
+      <div>
+        <div class="import-title">⚡ Empezá más rápido</div>
+        <div class="import-hint">Subí tu CV en PDF y la IA completa el formulario sola</div>
+      </div>
+    </div>
+    <label class="import-drop" id="import-drop" for="pdf-input">
+      <div class="import-drop-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 16V4M12 4L7 9M12 4L17 9" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 16V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V16" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p><b>Hacé clic para subir tu PDF</b><br>o arrastralo acá</p>
+    </label>
+    <input type="file" id="pdf-input" accept=".pdf" onchange="importPDF(this.files[0])" style="display:none">
+    <div class="import-loading" id="import-loading">
+      <span style="display:inline-flex;align-items:center;gap:6px"><span class="spinner" style="width:14px;height:14px;border-width:1.5px"></span>Claude está leyendo tu CV...</span>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-header">
       <span class="card-title">Datos personales</span>
-      <button class="btn-import-cv" onclick="document.getElementById('pdf-input').click()">
-        Importar CV (PDF)
-      </button>
-      <input type="file" id="pdf-input" accept=".pdf" onchange="importPDF(this.files[0])" style="display:none">
-    </div>
-    <div class="import-loading" id="import-loading" style="display:none;font-size:12px;color:#888;margin-bottom:8px;display:none">
-      <span style="display:inline-flex;align-items:center;gap:6px"><span class="spinner" style="width:14px;height:14px;border-width:1.5px"></span>Claude está leyendo tu CV...</span>
     </div>
     <div class="grid-2">
       <div class="field"><label>Nombre completo</label><input type="text" id="nombre" placeholder="Ej: María González"></div>
@@ -1028,6 +1045,11 @@ addExp();addEdu();addLang();
 <script>
 (function(){
   var panelContent = {
+    'como-funciona': '<h3>Cómo funciona</h3>' +
+      '<div class="service-item"><b>1. Cargá tus datos</b><span>Subí tu CV en PDF y la IA lo completa sola, o armalo desde cero con el formulario.</span></div>' +
+      '<div class="service-item"><b>2. Elegí tu objetivo</b><span>CV general para cualquier búsqueda, o pegá una oferta laboral puntual para que la IA optimice el CV específicamente para ese puesto.</span></div>' +
+      '<div class="service-item"><b>3. La IA optimiza</b><span>Reescribe tu perfil y experiencias, detecta keywords ATS y te muestra un score de compatibilidad.</span></div>' +
+      '<div class="service-item"><b>4. Descargá</b><span>En PDF gratis y sin límite, o en Word (.docx) editable por $3.999.</span></div>',
     quienes: '<h3>Quiénes somos</h3>' +
       '<p>CV Listo nació de una necesidad real: pasar por procesos de búsqueda laboral y sentir que el CV no reflejaba lo que uno podía ofrecer, o que se perdía en los filtros automáticos antes de llegar a una persona. Por eso armamos una herramienta simple para resolver ese problema en minutos, con ayuda de inteligencia artificial.</p>',
     servicios: '<h3>Servicios</h3>' +
@@ -1078,6 +1100,32 @@ addExp();addEdu();addLang();
 
   backdrop.addEventListener('click', closePanel);
   panel.addEventListener('click', function(e){ e.stopPropagation(); });
+})();
+
+// Drag & drop real para la zona de importar CV
+(function setupImportDropzone(){
+  const dropZone=document.getElementById('import-drop');
+  if(!dropZone)return;
+  ['dragenter','dragover'].forEach(evt=>{
+    dropZone.addEventListener(evt, function(e){
+      e.preventDefault(); e.stopPropagation();
+      dropZone.classList.add('dragover');
+    });
+  });
+  ['dragleave','drop'].forEach(evt=>{
+    dropZone.addEventListener(evt, function(e){
+      e.preventDefault(); e.stopPropagation();
+      dropZone.classList.remove('dragover');
+    });
+  });
+  dropZone.addEventListener('drop', function(e){
+    const file=e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file && file.type==='application/pdf'){
+      importPDF(file);
+    } else if(file){
+      showModal('Solo se aceptan archivos PDF.', 'Formato no válido');
+    }
+  });
 })();
 </script>
 </body>
