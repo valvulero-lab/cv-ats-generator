@@ -391,6 +391,15 @@ function showModal(msg, title){
   document.getElementById('modal-msg').textContent = msg;
   document.getElementById('modal-overlay').classList.add('active');
 }
+// La IA a veces devuelve saltos de línea "crudos" dentro de los strings del JSON
+// (en vez de \n escapado), lo cual rompe JSON.parse. Esto los limpia sin afectar
+// la estructura del JSON (los espacios/saltos de línea entre tokens son insignificantes).
+function sanitizeAiJson(raw){
+  return (raw||'')
+    .replace(/```json|```/g,'')
+    .trim()
+    .replace(/[\u0000-\u001F]+/g, ' ');
+}
 function closeModal(){
   document.getElementById('modal-overlay').classList.remove('active');
 }
@@ -541,7 +550,7 @@ ${pdfText.substring(0,8000)}`;
     const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     const result=await resp.json();
     if(result.error)throw new Error(result.error);
-    const text=result.result.replace(/```json|```/g,'').trim();
+    const text=sanitizeAiJson(result.result);
     const data=JSON.parse(text);
     populateForm(data);
     loadingEl.style.display='none';
@@ -714,7 +723,7 @@ Formato:
     const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt2})});
     const result=await resp.json();
     if(result.error)throw new Error(result.error);
-    const text=result.result.replace(/```json|```/g,'').trim();
+    const text=sanitizeAiJson(result.result);
     const opt=JSON.parse(text);
     cvData={...data,...opt};
     renderATSPanel(cvData);
