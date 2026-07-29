@@ -2,9 +2,17 @@ const { Document, Packer, Paragraph, TextRun, AlignmentType, BorderStyle, LevelF
 const { MercadoPagoConfig, Payment } = require('mercadopago');
 
 const PRECIO_WORD = 3999; // ARS — debe coincidir con create-payment.js
+const ALLOWED_ORIGINS = ['https://cvlisto.com.ar', 'https://www.cvlisto.com.ar'];
+
+function isVercelPreview(origin) {
+  try { return /\.vercel\.app$/.test(new URL(origin).hostname); }
+  catch (e) { return false; }
+}
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '';
+  const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin) || isVercelPreview(origin);
+  res.setHeader('Access-Control-Allow-Origin', isAllowedOrigin ? origin : ALLOWED_ORIGINS[0]);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -15,8 +23,10 @@ module.exports = async function handler(req, res) {
 
   const cv = body.cv;
   const paymentId = body.paymentId;
-  if (!cv) return res.status(400).json({ error: 'Faltan datos del CV' });
-  if (!paymentId) return res.status(402).json({ error: 'Falta acreditar el pago' });
+  if (!cv || typeof cv !== 'object') return res.status(400).json({ error: 'Faltan datos del CV' });
+  if (typeof cv.nombre !== 'string' || !cv.nombre.trim()) return res.status(400).json({ error: 'Falta el nombre del CV' });
+  if (JSON.stringify(cv).length > 100000) return res.status(413).json({ error: 'Los datos del CV son demasiado grandes' });
+  if (!paymentId || typeof paymentId !== 'string') return res.status(402).json({ error: 'Falta acreditar el pago' });
 
   // Verificar el pago contra la API de MercadoPago antes de generar nada
   try {
