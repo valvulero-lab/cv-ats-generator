@@ -4,6 +4,12 @@ const { MercadoPagoConfig, Payment } = require('mercadopago');
 const PRECIO_WORD = 3999; // ARS — debe coincidir con create-payment.js
 const ALLOWED_ORIGINS = ['https://cvlisto.com.ar', 'https://www.cvlisto.com.ar'];
 
+// PROMO DE LANZAMIENTO — Word gratis hasta esta fecha (inclusive).
+// Para cambiarla o cortarla antes, editar esta línea y volver a desplegar.
+// IMPORTANTE: si se cambia acá, cambiar también la misma fecha en index.html (PROMO_ACTIVA_HASTA).
+const PROMO_ACTIVA_HASTA = new Date('2026-08-26T23:59:59-03:00');
+function promoActiva() { return new Date() <= PROMO_ACTIVA_HASTA; }
+
 function isVercelPreview(origin) {
   try { return /\.vercel\.app$/.test(new URL(origin).hostname); }
   catch (e) { return false; }
@@ -26,30 +32,35 @@ module.exports = async function handler(req, res) {
   if (!cv || typeof cv !== 'object') return res.status(400).json({ error: 'Faltan datos del CV' });
   if (typeof cv.nombre !== 'string' || !cv.nombre.trim()) return res.status(400).json({ error: 'Falta el nombre del CV' });
   if (JSON.stringify(cv).length > 100000) return res.status(413).json({ error: 'Los datos del CV son demasiado grandes' });
-  if (!paymentId || typeof paymentId !== 'string') return res.status(402).json({ error: 'Falta acreditar el pago' });
 
-  // Verificar el pago contra la API de MercadoPago antes de generar nada
-  try {
-    if (!process.env.MP_ACCESS_TOKEN) {
-      return res.status(500).json({ error: 'MercadoPago no está configurado (falta MP_ACCESS_TOKEN)' });
-    }
-    const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
-    const paymentClient = new Payment(client);
-    const info = await paymentClient.get({ id: paymentId });
+  const enPromo = promoActiva();
 
-    if (info.status !== 'approved') {
-      return res.status(402).json({ error: 'El pago todavía no está aprobado' });
+  if (!enPromo) {
+    if (!paymentId || typeof paymentId !== 'string') return res.status(402).json({ error: 'Falta acreditar el pago' });
+
+    // Verificar el pago contra la API de MercadoPago antes de generar nada
+    try {
+      if (!process.env.MP_ACCESS_TOKEN) {
+        return res.status(500).json({ error: 'MercadoPago no está configurado (falta MP_ACCESS_TOKEN)' });
+      }
+      const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+      const paymentClient = new Payment(client);
+      const info = await paymentClient.get({ id: paymentId });
+
+      if (info.status !== 'approved') {
+        return res.status(402).json({ error: 'El pago todavía no está aprobado' });
+      }
+      if (info.transaction_amount < PRECIO_WORD) {
+        return res.status(402).json({ error: 'El monto pagado no coincide' });
+      }
+      // Nota: esto no evita que un mismo pago se use dos veces para regenerar el
+      // mismo Word (no hay base de datos todavía). Es un límite aceptable para
+      // el volumen inicial; si hace falta más adelante, se puede sumar Vercel KV
+      // para marcar payment_id como "ya usado".
+    } catch (error) {
+      console.error('Error verificando pago:', error);
+      return res.status(402).json({ error: 'No se pudo verificar el pago' });
     }
-    if (info.transaction_amount < PRECIO_WORD) {
-      return res.status(402).json({ error: 'El monto pagado no coincide' });
-    }
-    // Nota: esto no evita que un mismo pago se use dos veces para regenerar el
-    // mismo Word (no hay base de datos todavía). Es un límite aceptable para
-    // el volumen inicial; si hace falta más adelante, se puede sumar Vercel KV
-    // para marcar payment_id como "ya usado".
-  } catch (error) {
-    console.error('Error verificando pago:', error);
-    return res.status(402).json({ error: 'No se pudo verificar el pago' });
   }
 
   try {
