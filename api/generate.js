@@ -43,7 +43,12 @@ module.exports = async function handler(req, res) {
       return res.status(response.status).json({ error: data.error?.message || 'Error de API' });
     }
 
-    return res.status(200).json({ result: data.content[0].text });
+    const textBlock = (data.content || []).find(b => b.type === 'text' && b.text);
+    if (!textBlock) {
+      return res.status(502).json({ error: 'La IA no devolvió texto en la respuesta' });
+    }
+
+    return res.status(200).json({ result: textBlock.text });
 
   } catch (error) {
     return res.status(500).json({ error: 'Error interno: ' + error.message });
