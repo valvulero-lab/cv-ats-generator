@@ -542,8 +542,18 @@ async function extractTextFromPDF(file){
   }
   return text.trim();
 }
+const MAX_PDF_SIZE_MB = 8;
+
 async function importPDF(file){
   if(!file)return;
+  if(file.type!=='application/pdf'){
+    showModal('Solo se aceptan archivos PDF.', 'Formato no válido');
+    return;
+  }
+  if(file.size > MAX_PDF_SIZE_MB*1024*1024){
+    showModal(`El archivo pesa demasiado (máximo ${MAX_PDF_SIZE_MB}MB). Probá exportar tu CV en un PDF más liviano.`, 'Archivo muy pesado');
+    return;
+  }
   const loadingEl=document.getElementById('import-loading');
   loadingEl.style.display='flex';
   try{
